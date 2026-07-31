@@ -1,0 +1,35 @@
+[
+  {
+    "id": "F001",
+    "name": "রয়েল মেরুন জর্জেট",
+    "category": "থ্রি-পিস",
+    "price": 1450,
+    "fabricType": "জর্জেট",
+    "colorFast": true,
+    "description": "নরম, হালকা ও পাতলা জর্জেট কাপড়। রং উঠবে না, ইস্ত্রি করা সহজ। উৎসব ও নিয়মিত ব্যবহার দুটোর জন্যই উপযুক্ত।",
+    "image": "https://images.unsplash.com/photo-1610030181087-540f829eb849?w=800&q=80",
+    "modelImage": "https://images.unsplash.com/photo-1583391733956-6c78276477e2?w=800&q=80"
+  },
+  {
+    "id": "F002",
+    "name": "স্কাই ব্লু কটন",
+    "category": "থ্রি-পিস",
+    "price": 950,
+    "fabricType": "সুতি",
+    "colorFast": true,
+    "description": "১০০% সুতি কাপড়, গরমে আরামদায়ক। ঘাম শোষণ করে, প্রতিদিনের ব্যবহারের জন্য সেরা পছন্দ।",
+    "image": "https://images.unsplash.com/photo-1596755094514-f87e34085b2c?w=800&q=80",
+    "modelImage": "https://images.unsplash.com/photo-1610189844971-5bd18cd6a2c9?w=800&q=80"
+  },
+  {
+    "id": "F003",
+    "name": "ব্ল্যাক এমব্রয়ডারি লিনেন",
+    "category": "থ্রি-পিস",
+    "price": 1850,
+    "fabricType": "লিনেন",
+    "colorFast": true,
+    "description": "হাতের কাজ করা প্রিমিয়াম লিনেন কাপড়। ভারী ও উৎসবমুখর অনুষ্ঠানের জন্য উপযুক্ত।",
+    "image": "https://images.unsplash.com/photo-1617331721458-bd3bd3f9c7f8?w=800&q=80",
+    "modelImage": "https://images.unsplash.com/photo-1585487000160-6ebcfceb0d03?w=800&q=80"
+  }
+]
