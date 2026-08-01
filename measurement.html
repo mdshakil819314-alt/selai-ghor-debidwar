@@ -44,8 +44,11 @@
   }
   .numrow{ display:flex; align-items:center; gap:10px; }
   .numrow button{
-    width:46px;height:46px;border-radius:10px;border:1.5px solid var(--line);
-    background:var(--white); font-size:22px; cursor:pointer; color:var(--wine);
+    appearance:none; -webkit-appearance:none; -moz-appearance:none;
+    flex:0 0 46px; width:46px; height:46px; align-self:center;
+    border-radius:10px; border:1.5px solid var(--line);
+    background:var(--white); font-size:22px; line-height:1; cursor:pointer; color:var(--wine);
+    display:flex; align-items:center; justify-content:center; padding:0;
   }
   .numrow input{
     flex:1; text-align:center; font-size:22px; font-weight:600; padding:12px; border-radius:10px;
@@ -121,7 +124,7 @@
       <label>বুকের মাপ <button class="helpbtn" onclick="toggleHelp(this)">?</button></label>
       <div class="numrow">
         <button onclick="step(this,-1)">−</button>
-        <input type="number" id="bust" placeholder="৩৪" inputmode="decimal">
+        <input type="text" class="measure-input" id="bust" placeholder="34" inputmode="decimal">
         <button onclick="step(this,1)">+</button>
       </div>
       <div class="help-diagram">বুকের সবচেয়ে চওড়া জায়গায়, বগলের নিচ দিয়ে ঘুরিয়ে টেপ ধরে মাপুন।</div>
@@ -131,7 +134,7 @@
       <label>কোমরের মাপ <button class="helpbtn" onclick="toggleHelp(this)">?</button></label>
       <div class="numrow">
         <button onclick="step(this,-1)">−</button>
-        <input type="number" id="waist" placeholder="৩০" inputmode="decimal">
+        <input type="text" class="measure-input" id="waist" placeholder="30" inputmode="decimal">
         <button onclick="step(this,1)">+</button>
       </div>
       <div class="help-diagram">নাভির উপর দিয়ে, কোমরের সবচেয়ে সরু জায়গায় মাপুন।</div>
@@ -141,7 +144,7 @@
       <label>নিতম্বের মাপ <button class="helpbtn" onclick="toggleHelp(this)">?</button></label>
       <div class="numrow">
         <button onclick="step(this,-1)">−</button>
-        <input type="number" id="hip" placeholder="৩৮" inputmode="decimal">
+        <input type="text" class="measure-input" id="hip" placeholder="38" inputmode="decimal">
         <button onclick="step(this,1)">+</button>
       </div>
       <div class="help-diagram">নিতম্বের সবচেয়ে চওড়া জায়গা দিয়ে ঘুরিয়ে মাপুন।</div>
@@ -151,7 +154,7 @@
       <label>কামিজের লম্বা <button class="helpbtn" onclick="toggleHelp(this)">?</button></label>
       <div class="numrow">
         <button onclick="step(this,-1)">−</button>
-        <input type="number" id="kameezLength" placeholder="৪২" inputmode="decimal">
+        <input type="text" class="measure-input" id="kameezLength" placeholder="42" inputmode="decimal">
         <button onclick="step(this,1)">+</button>
       </div>
       <div class="help-diagram">কাঁধ থেকে আপনি যতটুকু লম্বা চান সেই বিন্দু পর্যন্ত মাপুন।</div>
@@ -161,7 +164,7 @@
       <label>কাঁধের মাপ <button class="helpbtn" onclick="toggleHelp(this)">?</button></label>
       <div class="numrow">
         <button onclick="step(this,-1)">−</button>
-        <input type="number" id="shoulder" placeholder="১৪" inputmode="decimal">
+        <input type="text" class="measure-input" id="shoulder" placeholder="14" inputmode="decimal">
         <button onclick="step(this,1)">+</button>
       </div>
       <div class="help-diagram">এক কাঁধের হাড়ের ডগা থেকে আরেক কাঁধের হাড়ের ডগা পর্যন্ত, পিঠ দিয়ে মাপুন।</div>
@@ -171,7 +174,7 @@
       <label>হাতার লম্বা <button class="helpbtn" onclick="toggleHelp(this)">?</button></label>
       <div class="numrow">
         <button onclick="step(this,-1)">−</button>
-        <input type="number" id="sleeveLength" placeholder="১৭" inputmode="decimal">
+        <input type="text" class="measure-input" id="sleeveLength" placeholder="17" inputmode="decimal">
         <button onclick="step(this,1)">+</button>
       </div>
       <div class="help-diagram">কাঁধের কিনারা থেকে হাতা যেখানে শেষ হবে সেই বিন্দু পর্যন্ত মাপুন।</div>
@@ -181,7 +184,7 @@
       <label>হাতার ঘের <button class="helpbtn" onclick="toggleHelp(this)">?</button></label>
       <div class="numrow">
         <button onclick="step(this,-1)">−</button>
-        <input type="number" id="armhole" placeholder="১৫" inputmode="decimal">
+        <input type="text" class="measure-input" id="armhole" placeholder="15" inputmode="decimal">
         <button onclick="step(this,1)">+</button>
       </div>
       <div class="help-diagram">বাহুমূল ঘুরিয়ে মাপুন।</div>
@@ -204,7 +207,7 @@
       <label>কোমরের মাপ <button class="helpbtn" onclick="toggleHelp(this)">?</button></label>
       <div class="numrow">
         <button onclick="step(this,-1)">−</button>
-        <input type="number" id="salwarWaist" placeholder="৩০" inputmode="decimal">
+        <input type="text" class="measure-input" id="salwarWaist" placeholder="30" inputmode="decimal">
         <button onclick="step(this,1)">+</button>
       </div>
       <div class="help-diagram">কোমরের চারপাশ দিয়ে মাপুন, ফিতা যেখানে বাঁধবেন সেই জায়গায়।</div>
@@ -214,7 +217,7 @@
       <label>লম্বা <button class="helpbtn" onclick="toggleHelp(this)">?</button></label>
       <div class="numrow">
         <button onclick="step(this,-1)">−</button>
-        <input type="number" id="salwarLength" placeholder="৪০" inputmode="decimal">
+        <input type="text" class="measure-input" id="salwarLength" placeholder="40" inputmode="decimal">
         <button onclick="step(this,1)">+</button>
       </div>
       <div class="help-diagram">কোমর থেকে গোড়ালি পর্যন্ত মাপুন।</div>
@@ -224,7 +227,7 @@
       <label>উরুর ঘের <button class="helpbtn" onclick="toggleHelp(this)">?</button></label>
       <div class="numrow">
         <button onclick="step(this,-1)">−</button>
-        <input type="number" id="thighRound" placeholder="২২" inputmode="decimal">
+        <input type="text" class="measure-input" id="thighRound" placeholder="22" inputmode="decimal">
         <button onclick="step(this,1)">+</button>
       </div>
       <div class="help-diagram">চুড়িদার/পালাজো স্টাইলের জন্য দরকার — উরুর সবচেয়ে চওড়া জায়গা মাপুন।</div>
@@ -293,7 +296,7 @@
     <div class="review-box" id="reviewBox"></div>
 
     <div class="pay-row">
-      <span>মোট মূল্য (৩০% অগ্রিম)</span>
+      <span>মোট মূল্য (30% অগ্রিম)</span>
       <span class="amount" id="advanceAmount">৳0</span>
     </div>
 
@@ -354,9 +357,22 @@
     const box = btn.closest('.field').querySelector('.help-diagram');
     box.classList.toggle('open');
   }
+  function toLatinDigits(str){
+    const bn = '০১২৩৪৫৬৭৮৯';
+    return String(str).replace(/[০-৯]/g, d => bn.indexOf(d));
+  }
+  function sanitizeMeasureInputs(){
+    document.querySelectorAll('.measure-input').forEach(inp => {
+      inp.addEventListener('input', () => {
+        let v = toLatinDigits(inp.value).replace(/[^0-9.]/g, '');
+        inp.value = v;
+      });
+    });
+  }
   function step(btn, dir){
     const input = btn.parentElement.querySelector('input');
-    input.value = (Number(input.value)||0) + dir;
+    const cur = parseFloat(toLatinDigits(input.value)) || 0;
+    input.value = Math.max(0, cur + dir);
   }
 
   // সালোয়ার স্টাইল অপশন
@@ -441,16 +457,16 @@
       customer_name: name,
       customer_phone: phone,
       customer_address: address,
-      bust: Number(document.getElementById('bust').value) || null,
-      waist: Number(document.getElementById('waist').value) || null,
-      hip: Number(document.getElementById('hip').value) || null,
-      kameez_length: Number(document.getElementById('kameezLength').value) || null,
-      shoulder: Number(document.getElementById('shoulder').value) || null,
-      sleeve_length: Number(document.getElementById('sleeveLength').value) || null,
-      armhole: Number(document.getElementById('armhole').value) || null,
-      salwar_waist: Number(document.getElementById('salwarWaist').value) || null,
-      salwar_length: Number(document.getElementById('salwarLength').value) || null,
-      thigh_round: Number(document.getElementById('thighRound').value) || null,
+      bust: parseFloat(toLatinDigits(document.getElementById('bust').value)) || null,
+      waist: parseFloat(toLatinDigits(document.getElementById('waist').value)) || null,
+      hip: parseFloat(toLatinDigits(document.getElementById('hip').value)) || null,
+      kameez_length: parseFloat(toLatinDigits(document.getElementById('kameezLength').value)) || null,
+      shoulder: parseFloat(toLatinDigits(document.getElementById('shoulder').value)) || null,
+      sleeve_length: parseFloat(toLatinDigits(document.getElementById('sleeveLength').value)) || null,
+      armhole: parseFloat(toLatinDigits(document.getElementById('armhole').value)) || null,
+      salwar_waist: parseFloat(toLatinDigits(document.getElementById('salwarWaist').value)) || null,
+      salwar_length: parseFloat(toLatinDigits(document.getElementById('salwarLength').value)) || null,
+      thigh_round: parseFloat(toLatinDigits(document.getElementById('thighRound').value)) || null,
       neck_design: selectedNeck || document.getElementById('neckCustom').value.trim() || null,
       sleeve_style: selectedSleeve || document.getElementById('sleeveCustom').value.trim() || null,
       salwar_style: selectedSalwarStyle,
@@ -481,6 +497,7 @@
 
   renderProgress();
   renderSalwarStyles();
+  sanitizeMeasureInputs();
   loadDesignGallery('neck_designs', 'neckPicker', v => selectedNeck = v);
   loadDesignGallery('sleeve_designs', 'sleevePicker', v => selectedSleeve = v);
 </script>
