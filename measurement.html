@@ -166,6 +166,7 @@
       <h2>অর্ডার সফলভাবে জমা হয়েছে</h2>
       <div class="order-code" id="orderCodeOut"></div>
       <p class="sub">মাপ নিশ্চিত করতে আমাদের প্রতিনিধি শীঘ্রই আপনাকে ফোন করবে।</p>
+      <div class="nav-row"><a class="btn btn-ghost" href="order-tracking.html" style="text-decoration:none;display:flex;align-items:center;justify-content:center;">অর্ডার ট্র্যাক করুন</a></div>
       <div class="nav-row"><a class="btn btn-primary" href="index.html" style="text-decoration:none;display:flex;align-items:center;justify-content:center;">হোমপেজে ফিরে যান</a></div>
     </div>
   </section>
@@ -178,7 +179,7 @@
 const CATEGORY_SCHEMAS = {
   'থ্রি-পিস': {
     steps: [
-      { title:'কামিজের মাপ', sub:'ইঞ্চিতে মাপ দিন।', fields:[
+      { title:'কামিজের মাপ', sub:'ইঞ্চিতে মাপ দিন।', videoUrl:'', fields:[
         {id:'bust', label:'বুকের মাপ', placeholder:34, help:'বুকের সবচেয়ে চওড়া জায়গায়, বগলের নিচ দিয়ে ঘুরিয়ে মাপুন।'},
         {id:'waist', label:'কোমরের মাপ', placeholder:30, help:'নাভির উপর দিয়ে, কোমরের সবচেয়ে সরু জায়গায় মাপুন।'},
         {id:'hip', label:'নিতম্বের মাপ', placeholder:38, help:'নিতম্বের সবচেয়ে চওড়া জায়গা দিয়ে ঘুরিয়ে মাপুন।'},
@@ -251,7 +252,7 @@ const CATEGORY_SCHEMAS = {
 
   'বোরকা': {
     steps: [
-      { title:'বোরকার মাপ', sub:'ইঞ্চিতে মাপ দিন।',
+      { title:'বোরকার মাপ', sub:'ইঞ্চিতে মাপ দিন।', videoUrl:'',
         stylePicker:{ id:'borkaStyle', label:'বোরকার ধরন বাছাই করুন', options:['বাটন ফ্রন্ট','জিপার ফ্রন্ট','খোলা আবায়া স্টাইল'] },
         fields:[
         {id:'bust', label:'বুকের মাপ', placeholder:36, help:'বুকের সবচেয়ে চওড়া জায়গায় ঘুরিয়ে মাপুন।'},
@@ -310,6 +311,7 @@ function buildSteps(){
     stepOrder.push(String(si));
     html += `<section class="step" data-step="${si}"><h2>${st.title}</h2>`;
     if(st.sub) html += `<p class="sub">${st.sub}</p>`;
+    if(st.videoUrl) html += `<a href="${st.videoUrl}" target="_blank" style="display:inline-block;margin-bottom:16px;color:var(--wine);font-size:14px;font-weight:600;text-decoration:none;border:1.5px solid var(--wine);padding:8px 14px;border-radius:999px;">▶ কিভাবে মাপবেন — ভিডিও দেখুন</a>`;
 
     if(st.stylePicker){
       html += `<div class="field"><label>${st.stylePicker.label}</label><div class="card-picker" id="stylePicker_${st.stylePicker.id}"></div></div>`;
