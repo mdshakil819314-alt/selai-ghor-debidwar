@@ -22,47 +22,77 @@
   }
   header a{ color:var(--wine-deep); font-size:20px; text-decoration:none; }
   .brand-name{ font-size:17px; color:var(--wine-deep); }
-  main{ max-width:520px; margin:0 auto; padding:24px 20px 60px; }
+  main{ max-width:540px; margin:0 auto; padding:20px 20px 60px; }
 
-  .search-row{ display:flex; gap:10px; margin-bottom:24px; }
+  .section-label{ font-size:14px; font-weight:600; color:var(--wine-deep); margin:20px 0 10px; }
+  .section-label:first-child{ margin-top:0; }
+
+  .order-card{
+    display:flex; gap:12px; align-items:center; padding:14px 16px; border-radius:14px;
+    background:var(--blush); margin-bottom:12px; cursor:pointer; border:1.5px solid transparent;
+  }
+  .order-card:hover, .order-card:focus-visible{ border-color:var(--wine); outline:none; }
+  .order-card .info{ flex:1; }
+  .order-card .fabric{ font-weight:700; font-size:15px; color:var(--ink); }
+  .order-card .code{ font-size:12.5px; color:var(--ink-soft); margin-top:2px; }
+  .order-card .status-badge{
+    font-size:12px; padding:5px 12px; border-radius:999px; background:var(--wine); color:var(--white); white-space:nowrap;
+  }
+
+  .divider{ display:flex; align-items:center; gap:10px; margin:26px 0 18px; color:var(--ink-soft); font-size:13px; }
+  .divider::before, .divider::after{ content:''; flex:1; height:1px; background:var(--line); }
+
+  .search-toggle{
+    text-align:center; font-size:14px; color:var(--wine); text-decoration:underline; cursor:pointer; margin-bottom:14px;
+  }
+  .search-box{ display:none; }
+  .search-box.open{ display:block; }
+  .tab-row{ display:flex; gap:8px; margin-bottom:14px; }
+  .tab-btn{
+    flex:1; padding:10px; border-radius:10px; border:1.5px solid var(--line); background:var(--white);
+    font-size:13.5px; cursor:pointer; color:var(--ink);
+  }
+  .tab-btn.active{ background:var(--wine); border-color:var(--wine); color:var(--white); font-weight:600; }
+  .search-row{ display:flex; gap:10px; margin-bottom:10px; }
   .search-row input{
-    flex:1; padding:14px; border-radius:12px; border:1.5px solid var(--line);
-    font-family:inherit; font-size:16px; text-transform:uppercase;
+    flex:1; padding:13px; border-radius:12px; border:1.5px solid var(--line); font-family:inherit; font-size:15px;
   }
   .search-row button{
-    padding:0 20px; border-radius:12px; border:none; background:var(--wine); color:var(--white);
-    font-family:inherit; font-size:15px; font-weight:600; cursor:pointer;
+    padding:0 18px; border-radius:12px; border:none; background:var(--wine); color:var(--white); font-weight:600; cursor:pointer;
   }
-  .search-row button:hover{ background:var(--wine-deep); }
 
-  .msg{ text-align:center; color:var(--ink-soft); padding:30px 10px; font-size:15px; }
+  .msg{ text-align:center; color:var(--ink-soft); padding:20px 10px; font-size:14.5px; }
 
-  .order-card{ display:none; }
-  .order-card.show{ display:block; }
-  .order-head{ background:var(--blush); border-radius:14px; padding:18px 20px; margin-bottom:22px; }
-  .order-head h2{ font-size:19px; color:var(--wine-deep); margin-bottom:8px; }
-  .order-head .row{ display:flex; justify-content:space-between; font-size:14.5px; padding:4px 0; color:var(--ink); }
-  .order-head .row span:first-child{ color:var(--ink-soft); }
+  /* বিস্তারিত ভিউ */
+  .detail-view{ display:none; }
+  .detail-view.show{ display:block; }
+  .back-link{ display:inline-block; margin-bottom:16px; color:var(--wine); font-size:14px; cursor:pointer; }
+  .detail-head{ background:var(--blush); border-radius:14px; padding:18px 20px; margin-bottom:20px; }
+  .detail-head h2{ font-size:19px; color:var(--wine-deep); margin-bottom:8px; }
+  .detail-head .row{ display:flex; justify-content:space-between; font-size:14px; padding:4px 0; color:var(--ink); }
+  .detail-head .row span:first-child{ color:var(--ink-soft); }
 
-  .stepper{ margin:26px 0; }
-  .stepitem{ display:flex; gap:14px; position:relative; padding-bottom:26px; }
+  .detail-block{ margin-bottom:18px; }
+  .detail-block h3{ font-size:14px; color:var(--wine-deep); margin-bottom:8px; }
+  .detail-block .content{ background:var(--blush); border-radius:12px; padding:12px 14px; font-size:14px; white-space:pre-line; }
+
+  .stepper{ margin:20px 0; }
+  .stepitem{ display:flex; gap:14px; position:relative; padding-bottom:24px; }
   .stepitem:last-child{ padding-bottom:0; }
   .stepitem .dot{
-    width:30px; height:30px; border-radius:50%; flex:0 0 30px;
-    display:flex; align-items:center; justify-content:center; font-size:15px;
+    width:28px; height:28px; border-radius:50%; flex:0 0 28px;
+    display:flex; align-items:center; justify-content:center; font-size:14px;
     background:var(--line); color:var(--ink-soft); z-index:1;
   }
   .stepitem.done .dot{ background:var(--wine); color:var(--white); }
   .stepitem.current .dot{ background:var(--gold); color:var(--white); }
   .stepitem:not(:last-child)::before{
-    content:''; position:absolute; left:14px; top:30px; bottom:0; width:2px; background:var(--line);
+    content:''; position:absolute; left:13px; top:28px; bottom:0; width:2px; background:var(--line);
   }
   .stepitem.done:not(:last-child)::before{ background:var(--wine); }
-  .steplabel{ padding-top:4px; font-size:15px; }
+  .steplabel{ padding-top:3px; font-size:14.5px; }
   .steplabel b{ display:block; color:var(--ink); }
-  .steplabel span{ color:var(--ink-soft); font-size:12.5px; }
-
-  .refresh-note{ text-align:center; font-size:12px; color:var(--ink-soft); margin-top:10px; }
+  .steplabel span{ color:var(--ink-soft); font-size:12px; }
 </style>
 </head>
 <body>
@@ -73,23 +103,54 @@
 </header>
 
 <main>
-  <div class="search-row">
-    <input type="text" id="orderCodeInput" placeholder="যেমন: SGD-12345678">
-    <button onclick="searchOrder()">খুঁজুন</button>
-  </div>
 
-  <div class="msg" id="msg">অর্ডার কনফার্মেশনে পাওয়া অর্ডার কোডটি উপরে লিখুন।</div>
-
-  <div class="order-card" id="orderCard">
-    <div class="order-head">
-      <h2 id="ocFabric"></h2>
-      <div class="row"><span>অর্ডার কোড</span><span id="ocCode"></span></div>
-      <div class="row"><span>মোট মূল্য</span><span id="ocPrice"></span></div>
-      <div class="row"><span>পেমেন্ট</span><span id="ocPay"></span></div>
+  <!-- তালিকা ভিউ -->
+  <div id="listView">
+    <div id="savedOrdersSection" style="display:none;">
+      <div class="section-label">আপনার অর্ডার</div>
+      <div id="savedOrdersList"></div>
     </div>
-    <div class="stepper" id="stepper"></div>
-    <p class="refresh-note">স্ট্যাটাস প্রতি ২০ সেকেন্ডে নিজে থেকে আপডেট হয়</p>
+
+    <div class="divider">অথবা</div>
+
+    <div class="tab-row">
+      <button class="tab-btn active" id="tabCode" onclick="switchTab('code')">অর্ডার কোড দিয়ে</button>
+      <button class="tab-btn" id="tabPhone" onclick="switchTab('phone')">মোবাইল নম্বর দিয়ে</button>
+    </div>
+
+    <div class="search-row">
+      <input type="text" id="searchInput" placeholder="যেমন: SGD-12345678">
+      <button onclick="doSearch()">খুঁজুন</button>
+    </div>
+
+    <div id="searchResults"></div>
+    <div class="msg" id="msg" style="display:none;"></div>
   </div>
+
+  <!-- বিস্তারিত ভিউ -->
+  <div class="detail-view" id="detailView">
+    <span class="back-link" onclick="showList()">← তালিকায় ফিরে যান</span>
+    <div class="detail-head">
+      <h2 id="dFabric"></h2>
+      <div class="row"><span>অর্ডার কোড</span><span id="dCode"></span></div>
+      <div class="row"><span>ক্যাটাগরি</span><span id="dCategory"></span></div>
+      <div class="row"><span>মোট মূল্য</span><span id="dPrice"></span></div>
+      <div class="row"><span>পেমেন্ট</span><span id="dPay"></span></div>
+    </div>
+
+    <div class="detail-block">
+      <h3>মাপ</h3>
+      <div class="content" id="dMeasurements"></div>
+    </div>
+
+    <div class="detail-block">
+      <h3>স্টাইল পছন্দ</h3>
+      <div class="content" id="dStyle"></div>
+    </div>
+
+    <div class="stepper" id="stepper"></div>
+  </div>
+
 </main>
 
 <script>
@@ -106,38 +167,109 @@
     { key:'delivered', label:'ডেলিভারি সম্পন্ন',       sub:'আপনার পোশাক পৌঁছে গেছে' }
   ];
 
-  let currentCode = null;
+  let activeTab = 'code';
   let pollTimer = null;
 
-  async function searchOrder(){
-    const code = document.getElementById('orderCodeInput').value.trim().toUpperCase();
-    if(!code){ return; }
-    currentCode = code;
-    if(pollTimer) clearInterval(pollTimer);
-    await fetchAndRender();
-    pollTimer = setInterval(fetchAndRender, 20000);
+  function switchTab(tab){
+    activeTab = tab;
+    document.getElementById('tabCode').classList.toggle('active', tab === 'code');
+    document.getElementById('tabPhone').classList.toggle('active', tab === 'phone');
+    document.getElementById('searchInput').placeholder = tab === 'code' ? 'যেমন: SGD-12345678' : 'যেমন: 01712345678';
   }
 
-  async function fetchAndRender(){
-    const msg = document.getElementById('msg');
-    const card = document.getElementById('orderCard');
-    const { data, error } = await sb.from('orders').select('*').eq('order_code', currentCode).maybeSingle();
+  async function loadSavedOrders(){
+    let codes = [];
+    try{ codes = JSON.parse(localStorage.getItem('sgd_my_orders') || '[]'); }catch(e){}
+    if(!codes.length) return;
 
-    if(error || !data){
-      card.classList.remove('show');
+    const { data } = await sb.from('orders').select('*').in('order_code', codes);
+    if(!data || !data.length) return;
+
+    // localStorage-এর ক্রম অনুযায়ী সাজানো (নতুনটা আগে)
+    const ordered = codes.map(c => data.find(o => o.order_code === c)).filter(Boolean);
+
+    document.getElementById('savedOrdersSection').style.display = 'block';
+    renderCards(ordered, document.getElementById('savedOrdersList'));
+  }
+
+  function renderCards(orders, container){
+    container.innerHTML = '';
+    orders.forEach(o => {
+      const statusLabel = STATUS_STEPS.find(s => s.key === o.status)?.label || o.status;
+      const card = document.createElement('div');
+      card.className = 'order-card';
+      card.tabIndex = 0;
+      card.innerHTML = `
+        <div class="info">
+          <div class="fabric">${o.fabric_name}</div>
+          <div class="code">${o.order_code}</div>
+        </div>
+        <span class="status-badge">${statusLabel}</span>`;
+      card.onclick = () => showDetail(o);
+      card.onkeydown = e => { if(e.key === 'Enter') showDetail(o); };
+      container.appendChild(card);
+    });
+  }
+
+  async function doSearch(){
+    const val = document.getElementById('searchInput').value.trim();
+    const msg = document.getElementById('msg');
+    const resultsBox = document.getElementById('searchResults');
+    if(!val) return;
+
+    let query = sb.from('orders').select('*').order('created_at', { ascending: false });
+    query = activeTab === 'code' ? query.eq('order_code', val.toUpperCase()) : query.eq('customer_phone', val);
+
+    const { data, error } = await query;
+    if(error || !data || !data.length){
+      resultsBox.innerHTML = '';
       msg.style.display = 'block';
-      msg.textContent = 'এই অর্ডার কোডে কোনো অর্ডার পাওয়া যায়নি। কোডটি আবার চেক করুন।';
+      msg.textContent = 'কোনো অর্ডার পাওয়া যায়নি। তথ্যটা আবার চেক করুন।';
       return;
     }
-
     msg.style.display = 'none';
-    card.classList.add('show');
-    document.getElementById('ocFabric').textContent = data.fabric_name;
-    document.getElementById('ocCode').textContent = data.order_code;
-    document.getElementById('ocPrice').textContent = '৳' + data.total_price;
-    document.getElementById('ocPay').textContent = data.payment_method === 'bkash' ? 'বিকাশ (অগ্রিম)' : 'ক্যাশ অন ডেলিভারি';
+    renderCards(data, resultsBox);
+  }
 
-    const currentIdx = STATUS_STEPS.findIndex(s => s.key === data.status);
+  function showList(){
+    if(pollTimer) clearInterval(pollTimer);
+    document.getElementById('detailView').classList.remove('show');
+    document.getElementById('listView').style.display = 'block';
+  }
+
+  function showDetail(order){
+    document.getElementById('listView').style.display = 'none';
+    document.getElementById('detailView').classList.add('show');
+    renderDetail(order);
+
+    if(pollTimer) clearInterval(pollTimer);
+    pollTimer = setInterval(async () => {
+      const { data } = await sb.from('orders').select('*').eq('order_code', order.order_code).maybeSingle();
+      if(data) renderDetail(data);
+    }, 20000);
+  }
+
+  function formatObj(obj, emptyMsg){
+    if(!obj || Object.keys(obj).length === 0) return emptyMsg;
+    let lines = [];
+    for(const key in obj){
+      const val = obj[key];
+      if(val === null || val === '' || val === undefined) continue;
+      lines.push(key + ': ' + val);
+    }
+    return lines.length ? lines.join('\n') : emptyMsg;
+  }
+
+  function renderDetail(o){
+    document.getElementById('dFabric').textContent = o.fabric_name;
+    document.getElementById('dCode').textContent = o.order_code;
+    document.getElementById('dCategory').textContent = o.category;
+    document.getElementById('dPrice').textContent = '৳' + o.total_price;
+    document.getElementById('dPay').textContent = o.payment_method === 'bkash' ? 'বিকাশ (অগ্রিম)' : 'ক্যাশ অন ডেলিভারি';
+    document.getElementById('dMeasurements').textContent = formatObj(o.measurements, 'কোনো মাপ পাওয়া যায়নি');
+    document.getElementById('dStyle').textContent = formatObj(o.style_choices, 'কোনো স্টাইল পছন্দ দেওয়া হয়নি');
+
+    const currentIdx = STATUS_STEPS.findIndex(s => s.key === o.status);
     const stepper = document.getElementById('stepper');
     stepper.innerHTML = STATUS_STEPS.map((s, i) => {
       let cls = '';
@@ -152,9 +284,11 @@
     }).join('');
   }
 
-  document.getElementById('orderCodeInput').addEventListener('keydown', e => {
-    if(e.key === 'Enter') searchOrder();
+  document.getElementById('searchInput').addEventListener('keydown', e => {
+    if(e.key === 'Enter') doSearch();
   });
+
+  loadSavedOrders();
 </script>
 </body>
 </html>
