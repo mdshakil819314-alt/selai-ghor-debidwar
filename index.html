@@ -242,12 +242,17 @@ let FABRICS = [];
 let activeCat = 'সব';
 let slideIndex = 0, slideTimer = null;
 
+const SUPABASE_URL = 'https://dyirxnzbnwmbaoaecgcq.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_6KCTdCz0orLYFaufqWuNgA_yrTiDU3N';
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+let ALL_CATEGORIES = []; // category_schemas টেবিল থেকে
+
 async function loadSlider(){
   const el = document.getElementById('slider');
   let slides = [];
   try{
-    const res = await fetch('slider.json');
-    slides = await res.json();
+    const { data } = await sb.from('slider_banners').select('*').eq('active', true).order('sort_order');
+    slides = data || [];
   }catch(e){ return; }
   if(!slides.length) return;
 
@@ -270,15 +275,14 @@ function goToSlide(i, total){
   document.querySelectorAll('.slider-dots span').forEach((d,idx)=> d.classList.toggle('active', idx===i));
 }
 
-const SUPABASE_URL = 'https://dyirxnzbnwmbaoaecgcq.supabase.co';
-const SUPABASE_ANON_KEY = 'sb_publishable_6KCTdCz0orLYFaufqWuNgA_yrTiDU3N';
-const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-let ALL_CATEGORIES = []; // category_schemas টেবিল থেকে
-
 async function loadFabrics(){
   try{
-    const res = await fetch('fabrics.json');
-    FABRICS = await res.json();
+    const { data } = await sb.from('fabrics').select('*').eq('active', true);
+    FABRICS = (data || []).map(f => ({
+      id: f.id, name: f.name, category: f.category, price: f.price,
+      fabricType: f.fabric_type, colorFast: f.color_fast, description: f.description,
+      image: f.image, modelImages: f.model_images || []
+    }));
   }catch(e){
     FABRICS = [];
   }
