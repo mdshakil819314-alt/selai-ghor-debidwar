@@ -126,7 +126,7 @@
 <div class="progress" id="progress"></div>
 
 <main>
-  <div id="dynamicSteps"></div>
+  <div id="dynamicSteps"><div class="step active"><p class="sub" style="padding-top:20px;">লোড হচ্ছে…</p></div></div>
 
   <!-- তথ্য ও রিভিউ (সব ক্যাটাগরির জন্য কমন) -->
   <section class="step" data-step="info">
@@ -193,113 +193,9 @@
 </div>
 
 <script>
-/* ================= ক্যাটাগরি অনুযায়ী মাপের কনফিগারেশন =================
-   নতুন প্রোডাক্ট/ক্যাটাগরি যোগ করতে চাইলে এখানে নতুন করে entry বসালেই হবে,
-   বাকি সব কোড এমনিতেই কাজ করবে। */
-const CATEGORY_SCHEMAS = {
-  'থ্রি-পিস': {
-    steps: [
-      { title:'কামিজের মাপ', sub:'ইঞ্চিতে মাপ দিন।', fields:[
-        {id:'bust', label:'বুকের মাপ', placeholder:34, videoUrl:'https://youtube.com/shorts/orYCM4Pv1zk?si=0_TVOFHKMxhbyDnd', help:'বুকের সবচেয়ে চওড়া জায়গায়, বগলের নিচ দিয়ে ঘুরিয়ে মাপুন।'},
-        {id:'waist', label:'কোমরের মাপ', placeholder:30, videoUrl:'https://youtube.com/shorts/rluwY6TkC1s?si=JCEWJLNX16T5FJ47', help:'নাভির উপর দিয়ে, কোমরের সবচেয়ে সরু জায়গায় মাপুন।'},
-        {id:'hip', label:'নিতম্বের মাপ', placeholder:38, videoUrl:'https://youtube.com/shorts/ZbQXLQjXbaE?si=OaGTdtiFOq2TFjFx', help:'নিতম্বের সবচেয়ে চওড়া জায়গা দিয়ে ঘুরিয়ে মাপুন।'},
-        {id:'kameezLength', label:'কামিজের লম্বা', placeholder:42, videoUrl:'https://youtube.com/shorts/eXzidqeVsco?si=sZy1t3ocy1Nnws6T', help:'কাঁধ থেকে আপনি যতটুকু লম্বা চান সেই বিন্দু পর্যন্ত মাপুন।'},
-        {id:'shoulder', label:'কাঁধের মাপ', placeholder:14, videoUrl:'https://youtube.com/shorts/QSFjJM5s948?si=JPy_Hi5Qt78IaHA-', help:'এক কাঁধের হাড়ের ডগা থেকে আরেক কাঁধের হাড়ের ডগা পর্যন্ত, পিঠ দিয়ে মাপুন।'},
-        {id:'sleeveLength', label:'হাতার লম্বা', placeholder:17, videoUrl:'https://youtube.com/shorts/nmkAT3RhEyo?si=PzgVF9jlrUdnlYVd', help:'কাঁধের কিনারা থেকে হাতা যেখানে শেষ হবে সেই বিন্দু পর্যন্ত মাপুন।'},
-        {id:'armhole', label:'হাতার ঘের', placeholder:15, videoUrl:'', help:'বাহুমূল ঘুরিয়ে মাপুন।'}
-      ]},
-      { title:'সালোয়ার / পায়জামার মাপ', sub:'এবার নিচের অংশের মাপ দিন।',
-        stylePicker:{ id:'salwarStyle', label:'স্টাইল বাছাই করুন', options:['সাধারণ সালোয়ার','চুড়িদার','পালাজো','সিগারেট প্যান্ট','আফগানি'] },
-        fields:[
-        {id:'salwarWaist', label:'কোমরের মাপ', placeholder:30, help:'কোমরের চারপাশ দিয়ে মাপুন, ফিতা যেখানে বাঁধবেন সেই জায়গায়।'},
-        {id:'salwarLength', label:'লম্বা', placeholder:40, help:'কোমর থেকে গোড়ালি পর্যন্ত মাপুন।'},
-        {id:'thighRound', label:'উরুর ঘের', placeholder:22, help:'চুড়িদার/পালাজো স্টাইলের জন্য দরকার — উরুর সবচেয়ে চওড়া জায়গা মাপুন।'}
-      ]}
-    ],
-    designPickers: [
-      {id:'neck', table:'neck_designs', label:'গলার ডিজাইন'},
-      {id:'sleeve', table:'sleeve_designs', label:'হাতার ডিজাইন'}
-    ]
-  },
-
-  'মেক্সি': {
-    steps: [
-      { title:'মেক্সির মাপ', sub:'ইঞ্চিতে মাপ দিন। মেক্সি একটাই টুকরা, আলাদা সালোয়ার লাগবে না।', fields:[
-        {id:'bust', label:'বুকের মাপ', placeholder:34, help:'বুকের সবচেয়ে চওড়া জায়গায় ঘুরিয়ে মাপুন।'},
-        {id:'waist', label:'কোমরের মাপ', placeholder:30, help:'কোমরের সবচেয়ে সরু জায়গায় মাপুন।'},
-        {id:'hip', label:'নিতম্বের মাপ', placeholder:38, help:'নিতম্বের সবচেয়ে চওড়া জায়গা দিয়ে মাপুন।'},
-        {id:'maxiLength', label:'মেক্সির লম্বা', placeholder:54, help:'কাঁধ থেকে গোড়ালি পর্যন্ত (আপনার পছন্দমতো লম্বা) মাপুন।'},
-        {id:'shoulder', label:'কাঁধের মাপ', placeholder:14, help:'এক কাঁধ থেকে আরেক কাঁধ পর্যন্ত পিঠ দিয়ে মাপুন।'},
-        {id:'sleeveLength', label:'হাতার লম্বা', placeholder:9, help:'হাতা কতটুকু লম্বা চান — না চাইলে ০ দিন।'}
-      ]}
-    ],
-    designPickers: [
-      {id:'neck', table:'neck_designs', label:'গলার ডিজাইন'},
-      {id:'sleeve', table:'sleeve_designs', label:'হাতার ডিজাইন'}
-    ]
-  },
-
-  'পাঞ্জাবি': {
-    steps: [
-      { title:'পাঞ্জাবির মাপ', sub:'ইঞ্চিতে মাপ দিন।', fields:[
-        {id:'chest', label:'বুক/ছাতির মাপ', placeholder:38, help:'বুকের সবচেয়ে চওড়া জায়গায় ঘুরিয়ে মাপুন।'},
-        {id:'waist', label:'কোমরের মাপ', placeholder:34, help:'কোমরের চারপাশ দিয়ে মাপুন।'},
-        {id:'panjabiLength', label:'পাঞ্জাবির লম্বা', placeholder:40, help:'কাঁধ থেকে আপনি যতটুকু লম্বা চান সেই বিন্দু পর্যন্ত মাপুন।'},
-        {id:'shoulder', label:'কাঁধের মাপ', placeholder:17, help:'এক কাঁধ থেকে আরেক কাঁধ পর্যন্ত পিঠ দিয়ে মাপুন।'},
-        {id:'sleeveLength', label:'হাতার লম্বা', placeholder:23, help:'কাঁধ থেকে কব্জি পর্যন্ত মাপুন।'},
-        {id:'armhole', label:'হাতার ঘের', placeholder:17, help:'বাহুমূল ঘুরিয়ে মাপুন।'}
-      ]},
-      { title:'পায়জামার মাপ', sub:'', fields:[
-        {id:'pajamaWaist', label:'কোমরের মাপ', placeholder:34, help:'ফিতা যেখানে বাঁধবেন সেই জায়গায় মাপুন।'},
-        {id:'pajamaLength', label:'লম্বা', placeholder:40, help:'কোমর থেকে গোড়ালি পর্যন্ত মাপুন।'}
-      ]}
-    ],
-    designPickers: [ {id:'neck', table:'neck_designs', label:'গলা/কলার ডিজাইন'} ]
-  },
-
-  'স্কুল ড্রেস': {
-    steps: [
-      { title:'স্কুল ড্রেসের মাপ', sub:'ইঞ্চিতে মাপ দিন।', fields:[
-        {id:'chest', label:'বুকের মাপ', placeholder:28, help:'বুকের চারপাশ দিয়ে ঘুরিয়ে মাপুন।'},
-        {id:'waist', label:'কোমরের মাপ', placeholder:24, help:'কোমরের চারপাশ দিয়ে মাপুন।'},
-        {id:'dressLength', label:'জামা/ড্রেসের লম্বা', placeholder:30, help:'কাঁধ থেকে হাঁটু পর্যন্ত বা স্কুলের নিয়ম অনুযায়ী মাপুন।'},
-        {id:'shoulder', label:'কাঁধের মাপ', placeholder:11, help:'এক কাঁধ থেকে আরেক কাঁধ পর্যন্ত মাপুন।'},
-        {id:'sleeveLength', label:'হাতার লম্বা', placeholder:6, help:'কাঁধ থেকে হাতা যেখানে শেষ হবে সেই পর্যন্ত মাপুন।'}
-      ]}
-    ],
-    designPickers: []
-  },
-
-  'বোরকা': {
-    steps: [
-      { title:'বোরকার মাপ', sub:'ইঞ্চিতে মাপ দিন।',
-        stylePicker:{ id:'borkaStyle', label:'বোরকার ধরন বাছাই করুন', options:['বাটন ফ্রন্ট','জিপার ফ্রন্ট','খোলা আবায়া স্টাইল'] },
-        fields:[
-        {id:'bust', label:'বুকের মাপ', placeholder:36, help:'বুকের সবচেয়ে চওড়া জায়গায় ঘুরিয়ে মাপুন।'},
-        {id:'shoulder', label:'কাঁধের মাপ', placeholder:15, help:'এক কাঁধ থেকে আরেক কাঁধ পর্যন্ত পিঠ দিয়ে মাপুন।'},
-        {id:'borkaLength', label:'বোরকার লম্বা', placeholder:56, help:'কাঁধ থেকে গোড়ালি পর্যন্ত (আপনার পছন্দমতো লম্বা) মাপুন।'},
-        {id:'sleeveLength', label:'হাতার লম্বা', placeholder:22, help:'কাঁধ থেকে কব্জি পর্যন্ত মাপুন।'},
-        {id:'armhole', label:'হাতার ঘের', placeholder:16, help:'বাহুমূল ঘুরিয়ে মাপুন।'}
-      ]},
-      { title:'হিজাব অপশন', sub:'',
-        stylePicker:{ id:'hijabOption', label:'হিজাব/খিমার সংযুক্ত থাকবে কিনা', options:['হিজাব সহ সংযুক্ত','আলাদা হিজাব লাগবে না'] },
-        fields:[]
-      }
-    ],
-    designPickers: []
-  },
-
-  'পর্দা': {
-    steps: [
-      { title:'জানালা/দরজার মাপ', sub:'পর্দা বানাতে জানালা বা দরজার সঠিক মাপ দিন।', fields:[
-        {id:'width', label:'প্রস্থ (Width)', placeholder:48, help:'জানালা/দরজার একদম বাইরের কানা থেকে কানা পর্যন্ত প্রস্থ মাপুন।'},
-        {id:'height', label:'উচ্চতা (Height)', placeholder:60, help:'উপর থেকে নিচ পর্যন্ত উচ্চতা মাপুন।'},
-        {id:'panelCount', label:'পর্দার সংখ্যা', placeholder:2, help:'একটা জানালায় সাধারণত ২টা পর্দা লাগে।'}
-      ]}
-    ],
-    designPickers: []
-  }
-};
+/* ================= ক্যাটাগরির মাপের কনফিগারেশন — এখন Supabase থেকে আসে =================
+   নতুন ক্যাটাগরি যোগ করতে কোনো কোড লাগবে না — অ্যাডমিন অ্যাপ/SQL দিয়ে
+   category_schemas টেবিলে নতুন সারি যোগ করলেই এই পেজ নিজে থেকে পড়ে নেবে। */
 
 const SUPABASE_URL = 'https://dyirxnzbnwmbaoaecgcq.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_6KCTdCz0orLYFaufqWuNgA_yrTiDU3N';
@@ -311,12 +207,23 @@ const fabricName = params.get('name') || 'নির্বাচিত কাপ�
 const category = params.get('category') || 'থ্রি-পিস';
 const price = Number(params.get('price') || 0);
 
-const schema = CATEGORY_SCHEMAS[category] || CATEGORY_SCHEMAS['থ্রি-পিস'];
+let schema = null;
 const stylePickerSelections = {};   // salwarStyle ইত্যাদি
 const designPickerSelections = {};  // neck, sleeve ইত্যাদি
 
 let stepOrder = [];       // ['0','1',...,'style'?,'info']
 let currentIndex = 0;
+
+async function loadCategorySchema(){
+  const { data, error } = await sb.from('category_schemas').select('schema').eq('category_name', category).maybeSingle();
+  if(error || !data){
+    document.getElementById('dynamicSteps').innerHTML =
+      `<div class="empty-note" style="padding:30px 0;">দুঃখিত, "${category}" ক্যাটাগরির মাপের নিয়ম এখনো ডাটাবেসে যোগ করা হয়নি।</div>`;
+    return false;
+  }
+  schema = data.schema;
+  return true;
+}
 
 function playVideo(url){
   let vid = '';
@@ -576,13 +483,17 @@ async function submitOrder(){
 }
 
 // ইনিট
-buildSteps();
-document.querySelector(`.step[data-step="${stepOrder[0]}"]`).classList.add('active');
-renderProgress();
-renderStylePickers();
-sanitizeMeasureInputs();
-loadDesignPickers();
-window.payMethod = 'bkash';
+(async function init(){
+  const ok = await loadCategorySchema();
+  if(!ok) return;
+  buildSteps();
+  document.querySelector(`.step[data-step="${stepOrder[0]}"]`).classList.add('active');
+  renderProgress();
+  renderStylePickers();
+  sanitizeMeasureInputs();
+  loadDesignPickers();
+  window.payMethod = 'bkash';
+})();
 </script>
 </body>
 </html>
