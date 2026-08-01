@@ -42,5 +42,19 @@
       "https://images.unsplash.com/photo-1583391733956-6c78276477e2?w=800&q=80",
       "https://images.unsplash.com/photo-1610189844971-5bd18cd6a2c9?w=800&q=80"
     ]
+  },
+  {
+    "id": "F004",
+    "name": "প্রিমিয়াম নাইদা ব্ল্যাক",
+    "category": "বোরকা",
+    "price": 1650,
+    "fabricType": "নাইদা",
+    "colorFast": true,
+    "description": "ভারী কালো নাইদা কাপড়, স্বচ্ছ নয়, গরমেও আরামদায়ক। নিয়মিত ব্যবহার ও বাইরে চলাফেরার জন্য টেকসই ও মানসম্মত।",
+    "image": "https://images.unsplash.com/photo-1611085583191-a3b181a88401?w=800&q=80",
+    "modelImages": [
+      "https://images.unsplash.com/photo-1611085583191-a3b181a88401?w=800&q=80",
+      "https://images.unsplash.com/photo-1583391733956-6c78276477e2?w=800&q=80"
+    ]
   }
 ]
