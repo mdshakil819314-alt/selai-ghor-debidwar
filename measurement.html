@@ -40,7 +40,7 @@
   .field label{ display:flex; align-items:center; gap:6px; font-size:14.5px; font-weight:600; margin-bottom:8px; }
   .field .helpbtn{
     width:20px;height:20px;border-radius:50%;border:1px solid var(--gold); color:var(--gold);
-    background:none; font-size:12px; cursor:pointer; line-height:1;
+    background:none; font-size:12px; cursor:pointer; line-height:1; flex:0 0 20px;
   }
   .numrow{ display:flex; align-items:center; gap:10px; }
   .numrow button{
@@ -54,7 +54,6 @@
     flex:1; text-align:center; font-size:22px; font-weight:600; padding:12px; border-radius:10px;
     border:1.5px solid var(--line); font-family:inherit;
   }
-  .unit{ font-size:12.5px; color:var(--ink-soft); margin-top:4px; }
   .help-diagram{
     display:none; margin-top:10px; padding:10px 12px; background:var(--blush);
     border-radius:10px; font-size:13px; color:var(--ink);
@@ -114,156 +113,10 @@
 <div class="progress" id="progress"></div>
 
 <main>
+  <div id="dynamicSteps"></div>
 
-  <!-- ধাপ ১ — কামিজের মাপ -->
-  <section class="step active" data-step="1">
-    <h2>কামিজের মাপ</h2>
-    <p class="sub">ইঞ্চিতে মাপ দিন। মাপ জানা না থাকলে "কিভাবে মাপবেন" আইকনে চাপুন।</p>
-
-    <div class="field">
-      <label>বুকের মাপ <button class="helpbtn" onclick="toggleHelp(this)">?</button></label>
-      <div class="numrow">
-        <button onclick="step(this,-1)">−</button>
-        <input type="text" class="measure-input" id="bust" placeholder="34" inputmode="decimal">
-        <button onclick="step(this,1)">+</button>
-      </div>
-      <div class="help-diagram">বুকের সবচেয়ে চওড়া জায়গায়, বগলের নিচ দিয়ে ঘুরিয়ে টেপ ধরে মাপুন।</div>
-    </div>
-
-    <div class="field">
-      <label>কোমরের মাপ <button class="helpbtn" onclick="toggleHelp(this)">?</button></label>
-      <div class="numrow">
-        <button onclick="step(this,-1)">−</button>
-        <input type="text" class="measure-input" id="waist" placeholder="30" inputmode="decimal">
-        <button onclick="step(this,1)">+</button>
-      </div>
-      <div class="help-diagram">নাভির উপর দিয়ে, কোমরের সবচেয়ে সরু জায়গায় মাপুন।</div>
-    </div>
-
-    <div class="field">
-      <label>নিতম্বের মাপ <button class="helpbtn" onclick="toggleHelp(this)">?</button></label>
-      <div class="numrow">
-        <button onclick="step(this,-1)">−</button>
-        <input type="text" class="measure-input" id="hip" placeholder="38" inputmode="decimal">
-        <button onclick="step(this,1)">+</button>
-      </div>
-      <div class="help-diagram">নিতম্বের সবচেয়ে চওড়া জায়গা দিয়ে ঘুরিয়ে মাপুন।</div>
-    </div>
-
-    <div class="field">
-      <label>কামিজের লম্বা <button class="helpbtn" onclick="toggleHelp(this)">?</button></label>
-      <div class="numrow">
-        <button onclick="step(this,-1)">−</button>
-        <input type="text" class="measure-input" id="kameezLength" placeholder="42" inputmode="decimal">
-        <button onclick="step(this,1)">+</button>
-      </div>
-      <div class="help-diagram">কাঁধ থেকে আপনি যতটুকু লম্বা চান সেই বিন্দু পর্যন্ত মাপুন।</div>
-    </div>
-
-    <div class="field">
-      <label>কাঁধের মাপ <button class="helpbtn" onclick="toggleHelp(this)">?</button></label>
-      <div class="numrow">
-        <button onclick="step(this,-1)">−</button>
-        <input type="text" class="measure-input" id="shoulder" placeholder="14" inputmode="decimal">
-        <button onclick="step(this,1)">+</button>
-      </div>
-      <div class="help-diagram">এক কাঁধের হাড়ের ডগা থেকে আরেক কাঁধের হাড়ের ডগা পর্যন্ত, পিঠ দিয়ে মাপুন।</div>
-    </div>
-
-    <div class="field">
-      <label>হাতার লম্বা <button class="helpbtn" onclick="toggleHelp(this)">?</button></label>
-      <div class="numrow">
-        <button onclick="step(this,-1)">−</button>
-        <input type="text" class="measure-input" id="sleeveLength" placeholder="17" inputmode="decimal">
-        <button onclick="step(this,1)">+</button>
-      </div>
-      <div class="help-diagram">কাঁধের কিনারা থেকে হাতা যেখানে শেষ হবে সেই বিন্দু পর্যন্ত মাপুন।</div>
-    </div>
-
-    <div class="field">
-      <label>হাতার ঘের <button class="helpbtn" onclick="toggleHelp(this)">?</button></label>
-      <div class="numrow">
-        <button onclick="step(this,-1)">−</button>
-        <input type="text" class="measure-input" id="armhole" placeholder="15" inputmode="decimal">
-        <button onclick="step(this,1)">+</button>
-      </div>
-      <div class="help-diagram">বাহুমূল ঘুরিয়ে মাপুন।</div>
-    </div>
-
-    <div class="nav-row"><button class="btn btn-primary" onclick="goTo(2)">পরবর্তী ধাপ</button></div>
-  </section>
-
-  <!-- ধাপ ২ — সালোয়ারের মাপ -->
-  <section class="step" data-step="2">
-    <h2>সালোয়ার / পায়জামার মাপ</h2>
-    <p class="sub">এবার নিচের অংশের মাপ দিন।</p>
-
-    <div class="field">
-      <label>স্টাইল বাছাই করুন</label>
-      <div class="card-picker" id="salwarStylePicker"></div>
-    </div>
-
-    <div class="field">
-      <label>কোমরের মাপ <button class="helpbtn" onclick="toggleHelp(this)">?</button></label>
-      <div class="numrow">
-        <button onclick="step(this,-1)">−</button>
-        <input type="text" class="measure-input" id="salwarWaist" placeholder="30" inputmode="decimal">
-        <button onclick="step(this,1)">+</button>
-      </div>
-      <div class="help-diagram">কোমরের চারপাশ দিয়ে মাপুন, ফিতা যেখানে বাঁধবেন সেই জায়গায়।</div>
-    </div>
-
-    <div class="field">
-      <label>লম্বা <button class="helpbtn" onclick="toggleHelp(this)">?</button></label>
-      <div class="numrow">
-        <button onclick="step(this,-1)">−</button>
-        <input type="text" class="measure-input" id="salwarLength" placeholder="40" inputmode="decimal">
-        <button onclick="step(this,1)">+</button>
-      </div>
-      <div class="help-diagram">কোমর থেকে গোড়ালি পর্যন্ত মাপুন।</div>
-    </div>
-
-    <div class="field">
-      <label>উরুর ঘের <button class="helpbtn" onclick="toggleHelp(this)">?</button></label>
-      <div class="numrow">
-        <button onclick="step(this,-1)">−</button>
-        <input type="text" class="measure-input" id="thighRound" placeholder="22" inputmode="decimal">
-        <button onclick="step(this,1)">+</button>
-      </div>
-      <div class="help-diagram">চুড়িদার/পালাজো স্টাইলের জন্য দরকার — উরুর সবচেয়ে চওড়া জায়গা মাপুন।</div>
-    </div>
-
-    <div class="nav-row">
-      <button class="btn btn-ghost" onclick="goTo(1)">আগের ধাপ</button>
-      <button class="btn btn-primary" onclick="goTo(3)">পরবর্তী ধাপ</button>
-    </div>
-  </section>
-
-  <!-- ধাপ ৩ — স্টাইল পছন্দ -->
-  <section class="step" data-step="3">
-    <h2>গলা ও হাতার ডিজাইন</h2>
-    <p class="sub">পছন্দের ডিজাইনে ট্যাপ করুন, অথবা নিজে লিখে দিন।</p>
-
-    <div class="field">
-      <label>গলার ডিজাইন</label>
-      <div class="card-picker" id="neckPicker"><div class="empty-note">ডিজাইন লোড হচ্ছে…</div></div>
-      <input type="text" class="custom-text" id="neckCustom" placeholder="আপনার পছন্দের গলার ডিজাইন লিখুন (ঐচ্ছিক)">
-    </div>
-
-    <div class="field">
-      <label>হাতার ডিজাইন</label>
-      <div class="card-picker" id="sleevePicker"><div class="empty-note">ডিজাইন লোড হচ্ছে…</div></div>
-      <input type="text" class="custom-text" id="sleeveCustom" placeholder="আপনার পছন্দের হাতার ডিজাইন লিখুন (ঐচ্ছিক)">
-    </div>
-
-    <div class="nav-row">
-      <button class="btn btn-ghost" onclick="goTo(2)">আগের ধাপ</button>
-      <button class="btn btn-primary" onclick="goTo(4)">পরবর্তী ধাপ</button>
-    </div>
-  </section>
-
-  <!-- ধাপ ৪ — তথ্য ও রিভিউ -->
-  <section class="step" data-step="4">
+  <!-- তথ্য ও রিভিউ (সব ক্যাটাগরির জন্য কমন) -->
+  <section class="step" data-step="info">
     <h2>আপনার তথ্য</h2>
     <p class="sub">অর্ডার পাঠাতে নিচের তথ্যগুলো দিন।</p>
 
@@ -296,12 +149,12 @@
     <div class="review-box" id="reviewBox"></div>
 
     <div class="pay-row">
-      <span>মোট মূল্য (30% অগ্রিম)</span>
+      <span>মোট মূল্য (৩০% অগ্রিম)</span>
       <span class="amount" id="advanceAmount">৳0</span>
     </div>
 
     <div class="nav-row">
-      <button class="btn btn-ghost" onclick="goTo(3)">আগের ধাপ</button>
+      <button class="btn btn-ghost" onclick="goToPrev('info')">আগের ধাপ</button>
       <button class="btn btn-primary" onclick="submitOrder()">অর্ডার নিশ্চিত করুন</button>
     </div>
   </section>
@@ -316,86 +169,262 @@
       <div class="nav-row"><a class="btn btn-primary" href="index.html" style="text-decoration:none;display:flex;align-items:center;justify-content:center;">হোমপেজে ফিরে যান</a></div>
     </div>
   </section>
-
 </main>
 
 <script>
-  const SUPABASE_URL = 'https://dyirxnzbnwmbaoaecgcq.supabase.co';
-  const SUPABASE_ANON_KEY = 'sb_publishable_6KCTdCz0orLYFaufqWuNgA_yrTiDU3N';
-  const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+/* ================= ক্যাটাগরি অনুযায়ী মাপের কনফিগারেশন =================
+   নতুন প্রোডাক্ট/ক্যাটাগরি যোগ করতে চাইলে এখানে নতুন করে entry বসালেই হবে,
+   বাকি সব কোড এমনিতেই কাজ করবে। */
+const CATEGORY_SCHEMAS = {
+  'থ্রি-পিস': {
+    steps: [
+      { title:'কামিজের মাপ', sub:'ইঞ্চিতে মাপ দিন।', fields:[
+        {id:'bust', label:'বুকের মাপ', placeholder:34, help:'বুকের সবচেয়ে চওড়া জায়গায়, বগলের নিচ দিয়ে ঘুরিয়ে মাপুন।'},
+        {id:'waist', label:'কোমরের মাপ', placeholder:30, help:'নাভির উপর দিয়ে, কোমরের সবচেয়ে সরু জায়গায় মাপুন।'},
+        {id:'hip', label:'নিতম্বের মাপ', placeholder:38, help:'নিতম্বের সবচেয়ে চওড়া জায়গা দিয়ে ঘুরিয়ে মাপুন।'},
+        {id:'kameezLength', label:'কামিজের লম্বা', placeholder:42, help:'কাঁধ থেকে আপনি যতটুকু লম্বা চান সেই বিন্দু পর্যন্ত মাপুন।'},
+        {id:'shoulder', label:'কাঁধের মাপ', placeholder:14, help:'এক কাঁধের হাড়ের ডগা থেকে আরেক কাঁধের হাড়ের ডগা পর্যন্ত, পিঠ দিয়ে মাপুন।'},
+        {id:'sleeveLength', label:'হাতার লম্বা', placeholder:17, help:'কাঁধের কিনারা থেকে হাতা যেখানে শেষ হবে সেই বিন্দু পর্যন্ত মাপুন।'},
+        {id:'armhole', label:'হাতার ঘের', placeholder:15, help:'বাহুমূল ঘুরিয়ে মাপুন।'}
+      ]},
+      { title:'সালোয়ার / পায়জামার মাপ', sub:'এবার নিচের অংশের মাপ দিন।',
+        stylePicker:{ id:'salwarStyle', label:'স্টাইল বাছাই করুন', options:['সাধারণ সালোয়ার','চুড়িদার','পালাজো','সিগারেট প্যান্ট','আফগানি'] },
+        fields:[
+        {id:'salwarWaist', label:'কোমরের মাপ', placeholder:30, help:'কোমরের চারপাশ দিয়ে মাপুন, ফিতা যেখানে বাঁধবেন সেই জায়গায়।'},
+        {id:'salwarLength', label:'লম্বা', placeholder:40, help:'কোমর থেকে গোড়ালি পর্যন্ত মাপুন।'},
+        {id:'thighRound', label:'উরুর ঘের', placeholder:22, help:'চুড়িদার/পালাজো স্টাইলের জন্য দরকার — উরুর সবচেয়ে চওড়া জায়গা মাপুন।'}
+      ]}
+    ],
+    designPickers: [
+      {id:'neck', table:'neck_designs', label:'গলার ডিজাইন'},
+      {id:'sleeve', table:'sleeve_designs', label:'হাতার ডিজাইন'}
+    ]
+  },
 
-  const params = new URLSearchParams(location.search);
-  const fabricId = params.get('fabric') || '';
-  const fabricName = params.get('name') || 'নির্বাচিত কাপড়';
-  const category = params.get('category') || 'থ্রি-পিস';
-  const price = Number(params.get('price') || 0);
+  'মেক্সি': {
+    steps: [
+      { title:'মেক্সির মাপ', sub:'ইঞ্চিতে মাপ দিন। মেক্সি একটাই টুকরা, আলাদা সালোয়ার লাগবে না।', fields:[
+        {id:'bust', label:'বুকের মাপ', placeholder:34, help:'বুকের সবচেয়ে চওড়া জায়গায় ঘুরিয়ে মাপুন।'},
+        {id:'waist', label:'কোমরের মাপ', placeholder:30, help:'কোমরের সবচেয়ে সরু জায়গায় মাপুন।'},
+        {id:'hip', label:'নিতম্বের মাপ', placeholder:38, help:'নিতম্বের সবচেয়ে চওড়া জায়গা দিয়ে মাপুন।'},
+        {id:'maxiLength', label:'মেক্সির লম্বা', placeholder:54, help:'কাঁধ থেকে গোড়ালি পর্যন্ত (আপনার পছন্দমতো লম্বা) মাপুন।'},
+        {id:'shoulder', label:'কাঁধের মাপ', placeholder:14, help:'এক কাঁধ থেকে আরেক কাঁধ পর্যন্ত পিঠ দিয়ে মাপুন।'},
+        {id:'sleeveLength', label:'হাতার লম্বা', placeholder:9, help:'হাতা কতটুকু লম্বা চান — না চাইলে ০ দিন।'}
+      ]}
+    ],
+    designPickers: [
+      {id:'neck', table:'neck_designs', label:'গলার ডিজাইন'},
+      {id:'sleeve', table:'sleeve_designs', label:'হাতার ডিজাইন'}
+    ]
+  },
 
-  let currentStep = 1;
-  const totalSteps = 4;
-  let selectedNeck = null, selectedSleeve = null, selectedSalwarStyle = 'সাধারণ সালোয়ার', payMethod = 'bkash';
+  'পাঞ্জাবি': {
+    steps: [
+      { title:'পাঞ্জাবির মাপ', sub:'ইঞ্চিতে মাপ দিন।', fields:[
+        {id:'chest', label:'বুক/ছাতির মাপ', placeholder:38, help:'বুকের সবচেয়ে চওড়া জায়গায় ঘুরিয়ে মাপুন।'},
+        {id:'waist', label:'কোমরের মাপ', placeholder:34, help:'কোমরের চারপাশ দিয়ে মাপুন।'},
+        {id:'panjabiLength', label:'পাঞ্জাবির লম্বা', placeholder:40, help:'কাঁধ থেকে আপনি যতটুকু লম্বা চান সেই বিন্দু পর্যন্ত মাপুন।'},
+        {id:'shoulder', label:'কাঁধের মাপ', placeholder:17, help:'এক কাঁধ থেকে আরেক কাঁধ পর্যন্ত পিঠ দিয়ে মাপুন।'},
+        {id:'sleeveLength', label:'হাতার লম্বা', placeholder:23, help:'কাঁধ থেকে কব্জি পর্যন্ত মাপুন।'},
+        {id:'armhole', label:'হাতার ঘের', placeholder:17, help:'বাহুমূল ঘুরিয়ে মাপুন।'}
+      ]},
+      { title:'পায়জামার মাপ', sub:'', fields:[
+        {id:'pajamaWaist', label:'কোমরের মাপ', placeholder:34, help:'ফিতা যেখানে বাঁধবেন সেই জায়গায় মাপুন।'},
+        {id:'pajamaLength', label:'লম্বা', placeholder:40, help:'কোমর থেকে গোড়ালি পর্যন্ত মাপুন।'}
+      ]}
+    ],
+    designPickers: [ {id:'neck', table:'neck_designs', label:'গলা/কলার ডিজাইন'} ]
+  },
 
-  function renderProgress(){
-    const el = document.getElementById('progress');
-    el.innerHTML = '';
-    for(let i=1;i<=totalSteps;i++){
-      const d = document.createElement('div');
-      if(i <= currentStep) d.className = 'done';
-      el.appendChild(d);
+  'স্কুল ড্রেস': {
+    steps: [
+      { title:'স্কুল ড্রেসের মাপ', sub:'ইঞ্চিতে মাপ দিন।', fields:[
+        {id:'chest', label:'বুকের মাপ', placeholder:28, help:'বুকের চারপাশ দিয়ে ঘুরিয়ে মাপুন।'},
+        {id:'waist', label:'কোমরের মাপ', placeholder:24, help:'কোমরের চারপাশ দিয়ে মাপুন।'},
+        {id:'dressLength', label:'জামা/ড্রেসের লম্বা', placeholder:30, help:'কাঁধ থেকে হাঁটু পর্যন্ত বা স্কুলের নিয়ম অনুযায়ী মাপুন।'},
+        {id:'shoulder', label:'কাঁধের মাপ', placeholder:11, help:'এক কাঁধ থেকে আরেক কাঁধ পর্যন্ত মাপুন।'},
+        {id:'sleeveLength', label:'হাতার লম্বা', placeholder:6, help:'কাঁধ থেকে হাতা যেখানে শেষ হবে সেই পর্যন্ত মাপুন।'}
+      ]}
+    ],
+    designPickers: []
+  },
+
+  'বোরকা': {
+    steps: [
+      { title:'বোরকার মাপ', sub:'ইঞ্চিতে মাপ দিন।',
+        stylePicker:{ id:'borkaStyle', label:'বোরকার ধরন বাছাই করুন', options:['বাটন ফ্রন্ট','জিপার ফ্রন্ট','খোলা আবায়া স্টাইল'] },
+        fields:[
+        {id:'bust', label:'বুকের মাপ', placeholder:36, help:'বুকের সবচেয়ে চওড়া জায়গায় ঘুরিয়ে মাপুন।'},
+        {id:'shoulder', label:'কাঁধের মাপ', placeholder:15, help:'এক কাঁধ থেকে আরেক কাঁধ পর্যন্ত পিঠ দিয়ে মাপুন।'},
+        {id:'borkaLength', label:'বোরকার লম্বা', placeholder:56, help:'কাঁধ থেকে গোড়ালি পর্যন্ত (আপনার পছন্দমতো লম্বা) মাপুন।'},
+        {id:'sleeveLength', label:'হাতার লম্বা', placeholder:22, help:'কাঁধ থেকে কব্জি পর্যন্ত মাপুন।'},
+        {id:'armhole', label:'হাতার ঘের', placeholder:16, help:'বাহুমূল ঘুরিয়ে মাপুন।'}
+      ]},
+      { title:'হিজাব অপশন', sub:'',
+        stylePicker:{ id:'hijabOption', label:'হিজাব/খিমার সংযুক্ত থাকবে কিনা', options:['হিজাব সহ সংযুক্ত','আলাদা হিজাব লাগবে না'] },
+        fields:[]
+      }
+    ],
+    designPickers: []
+  },
+
+  'পর্দা': {
+    steps: [
+      { title:'জানালা/দরজার মাপ', sub:'পর্দা বানাতে জানালা বা দরজার সঠিক মাপ দিন।', fields:[
+        {id:'width', label:'প্রস্থ (Width)', placeholder:48, help:'জানালা/দরজার একদম বাইরের কানা থেকে কানা পর্যন্ত প্রস্থ মাপুন।'},
+        {id:'height', label:'উচ্চতা (Height)', placeholder:60, help:'উপর থেকে নিচ পর্যন্ত উচ্চতা মাপুন।'},
+        {id:'panelCount', label:'পর্দার সংখ্যা', placeholder:2, help:'একটা জানালায় সাধারণত ২টা পর্দা লাগে।'}
+      ]}
+    ],
+    designPickers: []
+  }
+};
+
+const SUPABASE_URL = 'https://dyirxnzbnwmbaoaecgcq.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_6KCTdCz0orLYFaufqWuNgA_yrTiDU3N';
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+const params = new URLSearchParams(location.search);
+const fabricId = params.get('fabric') || '';
+const fabricName = params.get('name') || 'নির্বাচিত কাপড়';
+const category = params.get('category') || 'থ্রি-পিস';
+const price = Number(params.get('price') || 0);
+
+const schema = CATEGORY_SCHEMAS[category] || CATEGORY_SCHEMAS['থ্রি-পিস'];
+const stylePickerSelections = {};   // salwarStyle ইত্যাদি
+const designPickerSelections = {};  // neck, sleeve ইত্যাদি
+
+let stepOrder = [];       // ['0','1',...,'style'?,'info']
+let currentIndex = 0;
+
+function toLatinDigits(str){
+  const bn = '০১২৩৪৫৬৭৮৯';
+  return String(str).replace(/[০-৯]/g, d => bn.indexOf(d));
+}
+
+function buildSteps(){
+  const container = document.getElementById('dynamicSteps');
+  let html = '';
+
+  schema.steps.forEach((st, si) => {
+    stepOrder.push(String(si));
+    html += `<section class="step" data-step="${si}"><h2>${st.title}</h2>`;
+    if(st.sub) html += `<p class="sub">${st.sub}</p>`;
+
+    if(st.stylePicker){
+      html += `<div class="field"><label>${st.stylePicker.label}</label><div class="card-picker" id="stylePicker_${st.stylePicker.id}"></div></div>`;
     }
+
+    st.fields.forEach(f => {
+      html += `
+        <div class="field">
+          <label>${f.label} <button class="helpbtn" onclick="toggleHelp(this)">?</button></label>
+          <div class="numrow">
+            <button onclick="stepVal(this,-1)">−</button>
+            <input type="text" class="measure-input" id="${f.id}" placeholder="${f.placeholder}" inputmode="decimal">
+            <button onclick="stepVal(this,1)">+</button>
+          </div>
+          <div class="help-diagram">${f.help}</div>
+        </div>`;
+    });
+
+    html += `<div class="nav-row">`;
+    html += si > 0 ? `<button class="btn btn-ghost" onclick="goToPrev('${si}')">আগের ধাপ</button>` : '';
+    html += `<button class="btn btn-primary" onclick="goToNext('${si}')">পরবর্তী ধাপ</button>`;
+    html += `</div></section>`;
+  });
+
+  if(schema.designPickers.length){
+    stepOrder.push('style');
+    html += `<section class="step" data-step="style"><h2>ডিজাইন পছন্দ</h2><p class="sub">পছন্দের ডিজাইনে ট্যাপ করুন, অথবা নিজে লিখে দিন।</p>`;
+    schema.designPickers.forEach(dp => {
+      html += `
+        <div class="field">
+          <label>${dp.label}</label>
+          <div class="card-picker" id="designPicker_${dp.id}"><div class="empty-note">ডিজাইন লোড হচ্ছে…</div></div>
+          <input type="text" class="custom-text" id="designCustom_${dp.id}" placeholder="আপনার পছন্দের ${dp.label} লিখুন (ঐচ্ছিক)">
+        </div>`;
+    });
+    html += `<div class="nav-row"><button class="btn btn-ghost" onclick="goToPrev('style')">আগের ধাপ</button><button class="btn btn-primary" onclick="goToNext('style')">পরবর্তী ধাপ</button></div></section>`;
   }
 
-  function goTo(n){
-    document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
-    document.querySelector(`.step[data-step="${n}"]`).classList.add('active');
-    currentStep = n;
-    renderProgress();
-    window.scrollTo({top:0,behavior:'smooth'});
-    if(n === 4) renderReview();
-  }
+  stepOrder.push('info');
+  container.innerHTML = html;
+}
 
-  function toggleHelp(btn){
-    const box = btn.closest('.field').querySelector('.help-diagram');
-    box.classList.toggle('open');
+function renderProgress(){
+  const el = document.getElementById('progress');
+  el.innerHTML = '';
+  const total = stepOrder.length;
+  for(let i=0;i<total;i++){
+    const d = document.createElement('div');
+    if(i <= currentIndex) d.className = 'done';
+    el.appendChild(d);
   }
-  function toLatinDigits(str){
-    const bn = '০১২৩৪৫৬৭৮৯';
-    return String(str).replace(/[০-৯]/g, d => bn.indexOf(d));
-  }
-  function sanitizeMeasureInputs(){
-    document.querySelectorAll('.measure-input').forEach(inp => {
-      inp.addEventListener('input', () => {
-        let v = toLatinDigits(inp.value).replace(/[^0-9.]/g, '');
-        inp.value = v;
+}
+
+function goToStepKey(key){
+  document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
+  document.querySelector(`.step[data-step="${key}"]`).classList.add('active');
+  currentIndex = stepOrder.indexOf(key);
+  renderProgress();
+  window.scrollTo({top:0,behavior:'smooth'});
+  if(key === 'info') renderReview();
+}
+function goToNext(fromKey){
+  const idx = stepOrder.indexOf(fromKey);
+  goToStepKey(stepOrder[idx+1]);
+}
+function goToPrev(fromKey){
+  const idx = stepOrder.indexOf(fromKey);
+  goToStepKey(stepOrder[idx-1]);
+}
+
+function toggleHelp(btn){
+  const box = btn.closest('.field').querySelector('.help-diagram');
+  box.classList.toggle('open');
+}
+function stepVal(btn, dir){
+  const input = btn.parentElement.querySelector('input');
+  const cur = parseFloat(toLatinDigits(input.value)) || 0;
+  input.value = Math.max(0, cur + dir);
+}
+function sanitizeMeasureInputs(){
+  document.querySelectorAll('.measure-input').forEach(inp => {
+    inp.addEventListener('input', () => {
+      inp.value = toLatinDigits(inp.value).replace(/[^0-9.]/g, '');
+    });
+  });
+}
+
+function renderStylePickers(){
+  schema.steps.forEach(st => {
+    if(!st.stylePicker) return;
+    const sp = st.stylePicker;
+    if(!(sp.id in stylePickerSelections)) stylePickerSelections[sp.id] = sp.options[0];
+    const el = document.getElementById('stylePicker_'+sp.id);
+    function render(){
+      el.innerHTML = '';
+      sp.options.forEach(opt => {
+        const d = document.createElement('div');
+        d.className = 'pick' + (opt === stylePickerSelections[sp.id] ? ' selected' : '');
+        d.textContent = opt;
+        d.onclick = () => { stylePickerSelections[sp.id] = opt; render(); };
+        el.appendChild(d);
       });
-    });
-  }
-  function step(btn, dir){
-    const input = btn.parentElement.querySelector('input');
-    const cur = parseFloat(toLatinDigits(input.value)) || 0;
-    input.value = Math.max(0, cur + dir);
-  }
+    }
+    render();
+  });
+}
 
-  // সালোয়ার স্টাইল অপশন
-  const salwarStyles = ['সাধারণ সালোয়ার','চুড়িদার','পালাজো','সিগারেট প্যান্ট','আফগানি'];
-  function renderSalwarStyles(){
-    const el = document.getElementById('salwarStylePicker');
-    el.innerHTML = '';
-    salwarStyles.forEach(s => {
-      const d = document.createElement('div');
-      d.className = 'pick' + (s === selectedSalwarStyle ? ' selected' : '');
-      d.textContent = s;
-      d.onclick = () => { selectedSalwarStyle = s; renderSalwarStyles(); };
-      el.appendChild(d);
-    });
-  }
-
-  async function loadDesignGallery(table, containerId, onSelect){
-    const el = document.getElementById(containerId);
+async function loadDesignPickers(){
+  for(const dp of schema.designPickers){
+    const el = document.getElementById('designPicker_'+dp.id);
     try{
-      const { data, error } = await sb.from(table).select('*').eq('active', true);
+      const { data, error } = await sb.from(dp.table).select('*').eq('active', true);
       if(error || !data || !data.length){
         el.innerHTML = '<div class="empty-note">এখনো কোনো নমুনা ডিজাইন যোগ করা হয়নি — নিচে লিখে দিন আপনি কেমন চান।</div>';
-        return;
+        continue;
       }
       el.innerHTML = '';
       data.forEach(d => {
@@ -405,7 +434,7 @@
         card.onclick = () => {
           el.querySelectorAll('.pick').forEach(p => p.classList.remove('selected'));
           card.classList.add('selected');
-          onSelect(d.name);
+          designPickerSelections[dp.id] = d.name;
         };
         el.appendChild(card);
       });
@@ -413,93 +442,102 @@
       el.innerHTML = '<div class="empty-note">এখনো কোনো নমুনা ডিজাইন যোগ করা হয়নি — নিচে লিখে দিন আপনি কেমন চান।</div>';
     }
   }
+}
 
-  function selectPay(el){
-    document.querySelectorAll('.radio-opt').forEach(o => o.classList.remove('selected'));
-    el.classList.add('selected');
-    payMethod = el.dataset.val;
-    document.getElementById('bkashField').style.display = payMethod === 'bkash' ? 'block' : 'none';
-    renderReview();
+function selectPay(el){
+  document.querySelectorAll('.radio-opt').forEach(o => o.classList.remove('selected'));
+  el.classList.add('selected');
+  window.payMethod = el.dataset.val;
+  document.getElementById('bkashField').style.display = window.payMethod === 'bkash' ? 'block' : 'none';
+  renderReview();
+}
+
+function renderReview(){
+  const advance = Math.round(price * 0.3);
+  document.getElementById('advanceAmount').textContent = '৳' + advance;
+  const box = document.getElementById('reviewBox');
+  box.innerHTML = `
+    <div><span>পণ্য</span><span>${fabricName}</span></div>
+    <div><span>ক্যাটাগরি</span><span>${category}</span></div>
+    <div><span>মোট মূল্য</span><span>৳${price}</span></div>
+    <div><span>পেমেন্ট</span><span>${(window.payMethod||'bkash') === 'bkash' ? 'বিকাশ (অগ্রিম)' : 'ক্যাশ অন ডেলিভারি'}</span></div>
+  `;
+}
+
+async function submitOrder(){
+  const name = document.getElementById('custName').value.trim();
+  const phone = document.getElementById('custPhone').value.trim();
+  const address = document.getElementById('custAddress').value.trim();
+  if(!name || !phone || !address){
+    alert('অনুগ্রহ করে নাম, মোবাইল নম্বর ও ঠিকানা পূরণ করুন।');
+    return;
+  }
+  const payMethod = window.payMethod || 'bkash';
+  if(payMethod === 'bkash' && !document.getElementById('bkashTxn').value.trim()){
+    alert('বিকাশ ট্রানজেকশন আইডি দিন।');
+    return;
   }
 
-  function renderReview(){
-    const advance = Math.round(price * 0.3);
-    document.getElementById('advanceAmount').textContent = '৳' + advance;
-    const box = document.getElementById('reviewBox');
-    box.innerHTML = `
-      <div><span>কাপড়</span><span>${fabricName}</span></div>
-      <div><span>মোট মূল্য</span><span>৳${price}</span></div>
-      <div><span>পেমেন্ট</span><span>${payMethod === 'bkash' ? 'বিকাশ (অগ্রিম)' : 'ক্যাশ অন ডেলিভারি'}</span></div>
-    `;
+  // সব মাপ জড়ো করা (ক্যাটাগরি অনুযায়ী ফিল্ড ভিন্ন হতে পারে)
+  const measurements = {};
+  schema.steps.forEach(st => st.fields.forEach(f => {
+    const val = parseFloat(toLatinDigits(document.getElementById(f.id).value));
+    measurements[f.id] = isNaN(val) ? null : val;
+  }));
+
+  // স্টাইল পছন্দ জড়ো করা
+  const styleChoices = { ...stylePickerSelections };
+  schema.designPickers.forEach(dp => {
+    const custom = document.getElementById('designCustom_'+dp.id).value.trim();
+    styleChoices[dp.id] = designPickerSelections[dp.id] || custom || null;
+  });
+
+  const orderCode = 'SGD-' + Date.now().toString().slice(-8);
+  const advance = Math.round(price * 0.3);
+
+  const payload = {
+    order_code: orderCode,
+    fabric_id: fabricId,
+    fabric_name: fabricName,
+    category: category,
+    customer_name: name,
+    customer_phone: phone,
+    customer_address: address,
+    measurements: measurements,
+    style_choices: styleChoices,
+    total_price: price,
+    advance_amount: advance,
+    payment_method: payMethod,
+    bkash_txn_id: payMethod === 'bkash' ? document.getElementById('bkashTxn').value.trim() : null,
+    status: 'pending'
+  };
+
+  const btn = event.target;
+  btn.disabled = true; btn.textContent = 'পাঠানো হচ্ছে...';
+
+  const { error } = await sb.from('orders').insert(payload);
+
+  if(error){
+    alert('দুঃখিত, অর্ডার পাঠাতে সমস্যা হয়েছে। আবার চেষ্টা করুন।');
+    btn.disabled = false; btn.textContent = 'অর্ডার নিশ্চিত করুন';
+    console.error(error);
+    return;
   }
 
-  async function submitOrder(){
-    const name = document.getElementById('custName').value.trim();
-    const phone = document.getElementById('custPhone').value.trim();
-    const address = document.getElementById('custAddress').value.trim();
-    if(!name || !phone || !address){
-      alert('অনুগ্রহ করে নাম, মোবাইল নম্বর ও ঠিকানা পূরণ করুন।');
-      return;
-    }
-    if(payMethod === 'bkash' && !document.getElementById('bkashTxn').value.trim()){
-      alert('বিকাশ ট্রানজেকশন আইডি দিন।');
-      return;
-    }
+  document.getElementById('orderCodeOut').textContent = orderCode;
+  document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
+  document.querySelector('.step[data-step="success"]').classList.add('active');
+  document.getElementById('progress').style.display = 'none';
+}
 
-    const orderCode = 'SGD-' + Date.now().toString().slice(-8);
-    const advance = Math.round(price * 0.3);
-
-    const payload = {
-      order_code: orderCode,
-      fabric_id: fabricId,
-      fabric_name: fabricName,
-      category: category,
-      customer_name: name,
-      customer_phone: phone,
-      customer_address: address,
-      bust: parseFloat(toLatinDigits(document.getElementById('bust').value)) || null,
-      waist: parseFloat(toLatinDigits(document.getElementById('waist').value)) || null,
-      hip: parseFloat(toLatinDigits(document.getElementById('hip').value)) || null,
-      kameez_length: parseFloat(toLatinDigits(document.getElementById('kameezLength').value)) || null,
-      shoulder: parseFloat(toLatinDigits(document.getElementById('shoulder').value)) || null,
-      sleeve_length: parseFloat(toLatinDigits(document.getElementById('sleeveLength').value)) || null,
-      armhole: parseFloat(toLatinDigits(document.getElementById('armhole').value)) || null,
-      salwar_waist: parseFloat(toLatinDigits(document.getElementById('salwarWaist').value)) || null,
-      salwar_length: parseFloat(toLatinDigits(document.getElementById('salwarLength').value)) || null,
-      thigh_round: parseFloat(toLatinDigits(document.getElementById('thighRound').value)) || null,
-      neck_design: selectedNeck || document.getElementById('neckCustom').value.trim() || null,
-      sleeve_style: selectedSleeve || document.getElementById('sleeveCustom').value.trim() || null,
-      salwar_style: selectedSalwarStyle,
-      total_price: price,
-      advance_amount: advance,
-      payment_method: payMethod,
-      bkash_txn_id: payMethod === 'bkash' ? document.getElementById('bkashTxn').value.trim() : null,
-      status: 'pending'
-    };
-
-    const btn = event.target;
-    btn.disabled = true; btn.textContent = 'পাঠানো হচ্ছে...';
-
-    const { error } = await sb.from('orders').insert(payload);
-
-    if(error){
-      alert('দুঃখিত, অর্ডার পাঠাতে সমস্যা হয়েছে। আবার চেষ্টা করুন।');
-      btn.disabled = false; btn.textContent = 'অর্ডার নিশ্চিত করুন';
-      console.error(error);
-      return;
-    }
-
-    document.getElementById('orderCodeOut').textContent = orderCode;
-    document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
-    document.querySelector('.step[data-step="success"]').classList.add('active');
-    document.getElementById('progress').style.display = 'none';
-  }
-
-  renderProgress();
-  renderSalwarStyles();
-  sanitizeMeasureInputs();
-  loadDesignGallery('neck_designs', 'neckPicker', v => selectedNeck = v);
-  loadDesignGallery('sleeve_designs', 'sleevePicker', v => selectedSleeve = v);
+// ইনিট
+buildSteps();
+document.querySelector(`.step[data-step="${stepOrder[0]}"]`).classList.add('active');
+renderProgress();
+renderStylePickers();
+sanitizeMeasureInputs();
+loadDesignPickers();
+window.payMethod = 'bkash';
 </script>
 </body>
 </html>
