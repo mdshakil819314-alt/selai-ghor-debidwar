@@ -285,7 +285,7 @@ function openDetail(f){
         <span>স্টিচিং সহ মূল্য</span>
         <span class="amount">৳${f.price}</span>
       </div>
-      <button class="order-btn" onclick="alert('মাপ নেওয়ার পেজ শীঘ্রই যুক্ত হবে।')">এই কাপড়ে অর্ডার করতে চাই</button>
+      <a class="order-btn" style="display:block;text-align:center;text-decoration:none;" href="measurement.html?fabric=${f.id}&name=${encodeURIComponent(f.name)}&category=${encodeURIComponent(f.category)}&price=${f.price}">এই কাপড়ে অর্ডার করতে চাই</a>
       <p class="order-note">অর্ডার নিশ্চিত করতে ৩০% অগ্রিম বিকাশ পেমেন্ট লাগবে, বাকিটা ডেলিভারিতে</p>
     </div>`;
   document.getElementById('overlay').classList.add('open');
