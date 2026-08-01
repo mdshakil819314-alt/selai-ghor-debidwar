@@ -6,6 +6,7 @@
 <title>সেলাই ঘর দেবিদ্বার — আপনার মাপ, আপনার পছন্দ</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Tiro+Bangla&family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
   :root{
     --ink:#2B2320;
@@ -269,6 +270,11 @@ function goToSlide(i, total){
   document.querySelectorAll('.slider-dots span').forEach((d,idx)=> d.classList.toggle('active', idx===i));
 }
 
+const SUPABASE_URL = 'https://dyirxnzbnwmbaoaecgcq.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_6KCTdCz0orLYFaufqWuNgA_yrTiDU3N';
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+let ALL_CATEGORIES = []; // category_schemas টেবিল থেকে
+
 async function loadFabrics(){
   try{
     const res = await fetch('fabrics.json');
@@ -276,27 +282,39 @@ async function loadFabrics(){
   }catch(e){
     FABRICS = [];
   }
+  try{
+    const { data } = await sb.from('category_schemas').select('category_name, sort_order').order('sort_order');
+    ALL_CATEGORIES = data || [];
+  }catch(e){
+    ALL_CATEGORIES = [];
+  }
   renderCats();
   renderGrid();
 }
 
 function renderCats(){
-  const cats = ['সব', ...new Set(FABRICS.map(f => f.category))];
-  const extra = ['পাঞ্জাবি', 'মেক্সি', 'স্কুল ড্রেস', 'পর্দা']; // coming soon
+  const withProducts = new Set(FABRICS.map(f => f.category));
   const el = document.getElementById('cats');
   el.innerHTML = '';
-  cats.forEach(c => {
+
+  const bSob = document.createElement('button');
+  bSob.className = 'chip' + (activeCat === 'সব' ? ' active' : '');
+  bSob.textContent = 'সব';
+  bSob.onclick = () => { activeCat = 'সব'; renderCats(); renderGrid(); };
+  el.appendChild(bSob);
+
+  ALL_CATEGORIES.forEach(cat => {
+    const c = cat.category_name;
     const b = document.createElement('button');
-    b.className = 'chip' + (c === activeCat ? ' active' : '');
-    b.textContent = c;
-    b.onclick = () => { activeCat = c; renderCats(); renderGrid(); };
-    el.appendChild(b);
-  });
-  extra.forEach(c => {
-    const b = document.createElement('button');
-    b.className = 'chip disabled';
-    b.textContent = c + ' (শীঘ্রই আসছে)';
-    b.disabled = true;
+    if(withProducts.has(c)){
+      b.className = 'chip' + (c === activeCat ? ' active' : '');
+      b.textContent = c;
+      b.onclick = () => { activeCat = c; renderCats(); renderGrid(); };
+    }else{
+      b.className = 'chip disabled';
+      b.textContent = c + ' (শীঘ্রই আসছে)';
+      b.disabled = true;
+    }
     el.appendChild(b);
   });
 }
