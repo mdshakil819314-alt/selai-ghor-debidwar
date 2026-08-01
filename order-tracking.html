@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>অর্ডার ট্র্যাক করুন — সেলাই ঘর দেবিদ্বার</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Tiro+Bangla&family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+  :root{
+    --ink:#2B2320; --ink-soft:#8B7A78;
+    --wine:#7A2142; --wine-deep:#5C1832; --gold:#C08A3E;
+    --blush:#F8EDE9; --white:#FFFFFF; --line:#EAE0DC;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{ font-family:'Hind Siliguri',sans-serif; color:var(--ink); background:var(--white); line-height:1.7; font-size:17px; }
+  h1,h2,.brand-name{ font-family:'Tiro Bangla',serif; }
+  header{
+    display:flex; align-items:center; gap:10px; padding:16px 20px;
+    border-bottom:1px solid var(--line); position:sticky; top:0; background:rgba(255,255,255,.97); z-index:10;
+  }
+  header a{ color:var(--wine-deep); font-size:20px; text-decoration:none; }
+  .brand-name{ font-size:17px; color:var(--wine-deep); }
+  main{ max-width:520px; margin:0 auto; padding:24px 20px 60px; }
+
+  .search-row{ display:flex; gap:10px; margin-bottom:24px; }
+  .search-row input{
+    flex:1; padding:14px; border-radius:12px; border:1.5px solid var(--line);
+    font-family:inherit; font-size:16px; text-transform:uppercase;
+  }
+  .search-row button{
+    padding:0 20px; border-radius:12px; border:none; background:var(--wine); color:var(--white);
+    font-family:inherit; font-size:15px; font-weight:600; cursor:pointer;
+  }
+  .search-row button:hover{ background:var(--wine-deep); }
+
+  .msg{ text-align:center; color:var(--ink-soft); padding:30px 10px; font-size:15px; }
+
+  .order-card{ display:none; }
+  .order-card.show{ display:block; }
+  .order-head{ background:var(--blush); border-radius:14px; padding:18px 20px; margin-bottom:22px; }
+  .order-head h2{ font-size:19px; color:var(--wine-deep); margin-bottom:8px; }
+  .order-head .row{ display:flex; justify-content:space-between; font-size:14.5px; padding:4px 0; color:var(--ink); }
+  .order-head .row span:first-child{ color:var(--ink-soft); }
+
+  .stepper{ margin:26px 0; }
+  .stepitem{ display:flex; gap:14px; position:relative; padding-bottom:26px; }
+  .stepitem:last-child{ padding-bottom:0; }
+  .stepitem .dot{
+    width:30px; height:30px; border-radius:50%; flex:0 0 30px;
+    display:flex; align-items:center; justify-content:center; font-size:15px;
+    background:var(--line); color:var(--ink-soft); z-index:1;
+  }
+  .stepitem.done .dot{ background:var(--wine); color:var(--white); }
+  .stepitem.current .dot{ background:var(--gold); color:var(--white); }
+  .stepitem:not(:last-child)::before{
+    content:''; position:absolute; left:14px; top:30px; bottom:0; width:2px; background:var(--line);
+  }
+  .stepitem.done:not(:last-child)::before{ background:var(--wine); }
+  .steplabel{ padding-top:4px; font-size:15px; }
+  .steplabel b{ display:block; color:var(--ink); }
+  .steplabel span{ color:var(--ink-soft); font-size:12.5px; }
+
+  .refresh-note{ text-align:center; font-size:12px; color:var(--ink-soft); margin-top:10px; }
+</style>
+</head>
+<body>
+
+<header>
+  <a href="index.html">←</a>
+  <span class="brand-name">অর্ডার ট্র্যাক করুন</span>
+</header>
+
+<main>
+  <div class="search-row">
+    <input type="text" id="orderCodeInput" placeholder="যেমন: SGD-12345678">
+    <button onclick="searchOrder()">খুঁজুন</button>
+  </div>
+
+  <div class="msg" id="msg">অর্ডার কনফার্মেশনে পাওয়া অর্ডার কোডটি উপরে লিখুন।</div>
+
+  <div class="order-card" id="orderCard">
+    <div class="order-head">
+      <h2 id="ocFabric"></h2>
+      <div class="row"><span>অর্ডার কোড</span><span id="ocCode"></span></div>
+      <div class="row"><span>মোট মূল্য</span><span id="ocPrice"></span></div>
+      <div class="row"><span>পেমেন্ট</span><span id="ocPay"></span></div>
+    </div>
+    <div class="stepper" id="stepper"></div>
+    <p class="refresh-note">স্ট্যাটাস প্রতি ২০ সেকেন্ডে নিজে থেকে আপডেট হয়</p>
+  </div>
+</main>
+
+<script>
+  const SUPABASE_URL = 'https://dyirxnzbnwmbaoaecgcq.supabase.co';
+  const SUPABASE_ANON_KEY = 'sb_publishable_6KCTdCz0orLYFaufqWuNgA_yrTiDU3N';
+  const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+  const STATUS_STEPS = [
+    { key:'pending',   label:'অর্ডার গৃহীত হয়েছে',   sub:'আপনার মাপ পর্যালোচনা করা হচ্ছে' },
+    { key:'confirmed', label:'মাপ কনফার্ম হয়েছে',    sub:'কাপড় প্রস্তুত করা হচ্ছে' },
+    { key:'cutting',   label:'কাটিং চলছে',            sub:'দর্জি কাপড় কাটছেন' },
+    { key:'sewing',    label:'সেলাই চলছে',            sub:'পোশাক তৈরি হচ্ছে' },
+    { key:'ready',     label:'ডেলিভারির জন্য প্রস্তুত', sub:'শীঘ্রই পাঠানো হবে' },
+    { key:'delivered', label:'ডেলিভারি সম্পন্ন',       sub:'আপনার পোশাক পৌঁছে গেছে' }
+  ];
+
+  let currentCode = null;
+  let pollTimer = null;
+
+  async function searchOrder(){
+    const code = document.getElementById('orderCodeInput').value.trim().toUpperCase();
+    if(!code){ return; }
+    currentCode = code;
+    if(pollTimer) clearInterval(pollTimer);
+    await fetchAndRender();
+    pollTimer = setInterval(fetchAndRender, 20000);
+  }
+
+  async function fetchAndRender(){
+    const msg = document.getElementById('msg');
+    const card = document.getElementById('orderCard');
+    const { data, error } = await sb.from('orders').select('*').eq('order_code', currentCode).maybeSingle();
+
+    if(error || !data){
+      card.classList.remove('show');
+      msg.style.display = 'block';
+      msg.textContent = 'এই অর্ডার কোডে কোনো অর্ডার পাওয়া যায়নি। কোডটি আবার চেক করুন।';
+      return;
+    }
+
+    msg.style.display = 'none';
+    card.classList.add('show');
+    document.getElementById('ocFabric').textContent = data.fabric_name;
+    document.getElementById('ocCode').textContent = data.order_code;
+    document.getElementById('ocPrice').textContent = '৳' + data.total_price;
+    document.getElementById('ocPay').textContent = data.payment_method === 'bkash' ? 'বিকাশ (অগ্রিম)' : 'ক্যাশ অন ডেলিভারি';
+
+    const currentIdx = STATUS_STEPS.findIndex(s => s.key === data.status);
+    const stepper = document.getElementById('stepper');
+    stepper.innerHTML = STATUS_STEPS.map((s, i) => {
+      let cls = '';
+      if(i < currentIdx) cls = 'done';
+      else if(i === currentIdx) cls = 'current';
+      const icon = i < currentIdx ? '✓' : (i + 1);
+      return `
+        <div class="stepitem ${cls}">
+          <div class="dot">${icon}</div>
+          <div class="steplabel"><b>${s.label}</b><span>${s.sub}</span></div>
+        </div>`;
+    }).join('');
+  }
+
+  document.getElementById('orderCodeInput').addEventListener('keydown', e => {
+    if(e.key === 'Enter') searchOrder();
+  });
+</script>
+</body>
+</html>
