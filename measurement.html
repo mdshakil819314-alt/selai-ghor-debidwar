@@ -480,6 +480,13 @@ async function submitOrder(){
   document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
   document.querySelector('.step[data-step="success"]').classList.add('active');
   document.getElementById('progress').style.display = 'none';
+
+  // এই ডিভাইসে অর্ডার কোড সেভ রাখা হচ্ছে, যাতে কাস্টমারকে আর মনে রাখতে না হয়
+  try{
+    const saved = JSON.parse(localStorage.getItem('sgd_my_orders') || '[]');
+    saved.unshift(orderCode);
+    localStorage.setItem('sgd_my_orders', JSON.stringify(saved));
+  }catch(e){}
 }
 
 // ইনিট
