@@ -179,14 +179,14 @@
 const CATEGORY_SCHEMAS = {
   'থ্রি-পিস': {
     steps: [
-      { title:'কামিজের মাপ', sub:'ইঞ্চিতে মাপ দিন।', videoUrl:'', fields:[
-        {id:'bust', label:'বুকের মাপ', placeholder:34, help:'বুকের সবচেয়ে চওড়া জায়গায়, বগলের নিচ দিয়ে ঘুরিয়ে মাপুন।'},
-        {id:'waist', label:'কোমরের মাপ', placeholder:30, help:'নাভির উপর দিয়ে, কোমরের সবচেয়ে সরু জায়গায় মাপুন।'},
-        {id:'hip', label:'নিতম্বের মাপ', placeholder:38, help:'নিতম্বের সবচেয়ে চওড়া জায়গা দিয়ে ঘুরিয়ে মাপুন।'},
-        {id:'kameezLength', label:'কামিজের লম্বা', placeholder:42, help:'কাঁধ থেকে আপনি যতটুকু লম্বা চান সেই বিন্দু পর্যন্ত মাপুন।'},
-        {id:'shoulder', label:'কাঁধের মাপ', placeholder:14, help:'এক কাঁধের হাড়ের ডগা থেকে আরেক কাঁধের হাড়ের ডগা পর্যন্ত, পিঠ দিয়ে মাপুন।'},
-        {id:'sleeveLength', label:'হাতার লম্বা', placeholder:17, help:'কাঁধের কিনারা থেকে হাতা যেখানে শেষ হবে সেই বিন্দু পর্যন্ত মাপুন।'},
-        {id:'armhole', label:'হাতার ঘের', placeholder:15, help:'বাহুমূল ঘুরিয়ে মাপুন।'}
+      { title:'কামিজের মাপ', sub:'ইঞ্চিতে মাপ দিন।', fields:[
+        {id:'bust', label:'বুকের মাপ', placeholder:34, videoUrl:'', help:'বুকের সবচেয়ে চওড়া জায়গায়, বগলের নিচ দিয়ে ঘুরিয়ে মাপুন।'},
+        {id:'waist', label:'কোমরের মাপ', placeholder:30, videoUrl:'', help:'নাভির উপর দিয়ে, কোমরের সবচেয়ে সরু জায়গায় মাপুন।'},
+        {id:'hip', label:'নিতম্বের মাপ', placeholder:38, videoUrl:'', help:'নিতম্বের সবচেয়ে চওড়া জায়গা দিয়ে ঘুরিয়ে মাপুন।'},
+        {id:'kameezLength', label:'কামিজের লম্বা', placeholder:42, videoUrl:'', help:'কাঁধ থেকে আপনি যতটুকু লম্বা চান সেই বিন্দু পর্যন্ত মাপুন।'},
+        {id:'shoulder', label:'কাঁধের মাপ', placeholder:14, videoUrl:'', help:'এক কাঁধের হাড়ের ডগা থেকে আরেক কাঁধের হাড়ের ডগা পর্যন্ত, পিঠ দিয়ে মাপুন।'},
+        {id:'sleeveLength', label:'হাতার লম্বা', placeholder:17, videoUrl:'', help:'কাঁধের কিনারা থেকে হাতা যেখানে শেষ হবে সেই বিন্দু পর্যন্ত মাপুন।'},
+        {id:'armhole', label:'হাতার ঘের', placeholder:15, videoUrl:'', help:'বাহুমূল ঘুরিয়ে মাপুন।'}
       ]},
       { title:'সালোয়ার / পায়জামার মাপ', sub:'এবার নিচের অংশের মাপ দিন।',
         stylePicker:{ id:'salwarStyle', label:'স্টাইল বাছাই করুন', options:['সাধারণ সালোয়ার','চুড়িদার','পালাজো','সিগারেট প্যান্ট','আফগানি'] },
@@ -252,7 +252,7 @@ const CATEGORY_SCHEMAS = {
 
   'বোরকা': {
     steps: [
-      { title:'বোরকার মাপ', sub:'ইঞ্চিতে মাপ দিন।', videoUrl:'',
+      { title:'বোরকার মাপ', sub:'ইঞ্চিতে মাপ দিন।',
         stylePicker:{ id:'borkaStyle', label:'বোরকার ধরন বাছাই করুন', options:['বাটন ফ্রন্ট','জিপার ফ্রন্ট','খোলা আবায়া স্টাইল'] },
         fields:[
         {id:'bust', label:'বুকের মাপ', placeholder:36, help:'বুকের সবচেয়ে চওড়া জায়গায় ঘুরিয়ে মাপুন।'},
@@ -311,7 +311,6 @@ function buildSteps(){
     stepOrder.push(String(si));
     html += `<section class="step" data-step="${si}"><h2>${st.title}</h2>`;
     if(st.sub) html += `<p class="sub">${st.sub}</p>`;
-    if(st.videoUrl) html += `<a href="${st.videoUrl}" target="_blank" style="display:inline-block;margin-bottom:16px;color:var(--wine);font-size:14px;font-weight:600;text-decoration:none;border:1.5px solid var(--wine);padding:8px 14px;border-radius:999px;">▶ কিভাবে মাপবেন — ভিডিও দেখুন</a>`;
 
     if(st.stylePicker){
       html += `<div class="field"><label>${st.stylePicker.label}</label><div class="card-picker" id="stylePicker_${st.stylePicker.id}"></div></div>`;
@@ -320,7 +319,10 @@ function buildSteps(){
     st.fields.forEach(f => {
       html += `
         <div class="field">
-          <label>${f.label} <button class="helpbtn" onclick="toggleHelp(this)">?</button></label>
+          <label>${f.label}
+            <button class="helpbtn" onclick="toggleHelp(this)">?</button>
+            ${f.videoUrl ? `<a href="${f.videoUrl}" target="_blank" class="helpbtn" style="text-decoration:none;display:inline-flex;align-items:center;justify-content:center;">▶</a>` : ''}
+          </label>
           <div class="numrow">
             <button onclick="stepVal(this,-1)">−</button>
             <input type="text" class="measure-input" id="${f.id}" placeholder="${f.placeholder}" inputmode="decimal">
