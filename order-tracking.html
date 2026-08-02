@@ -156,6 +156,11 @@
       <div class="content" id="dStyle"></div>
     </div>
 
+    <div class="detail-block" id="dNoteBlock" style="display:none;">
+      <h3>বিশেষ কথা</h3>
+      <div class="content" id="dNote"></div>
+    </div>
+
     <div class="stepper" id="stepper"></div>
   </div>
 
@@ -309,7 +314,10 @@
       const val = obj[key];
       if(val === null || val === '' || val === undefined) continue;
       hasAny = true;
-      if(isImageUrl(val)){
+      if(Array.isArray(val)){
+        const imgs = val.map(u => `<img src="${u}" style="width:90px;height:90px;object-fit:cover;border-radius:8px;">`).join(' ');
+        html += `<div style="margin-bottom:8px;">${key}: <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:4px;">${imgs}</div></div>`;
+      }else if(isImageUrl(val)){
         html += `<div style="margin-bottom:8px;">${key}: <br><img src="${val}" style="width:90px;height:90px;object-fit:cover;border-radius:8px;margin-top:4px;"></div>`;
       }else{
         html += `<div>${key}: ${val}</div>`;
@@ -326,6 +334,14 @@
     document.getElementById('dPay').textContent = o.payment_method === 'bkash' ? 'বিকাশ (অগ্রিম)' : 'ক্যাশ অন ডেলিভারি';
     document.getElementById('dMeasurements').textContent = formatObj(o.measurements, 'কোনো মাপ পাওয়া যায়নি');
     document.getElementById('dStyle').innerHTML = renderStyleChoices(o.style_choices, 'কোনো স্টাইল পছন্দ দেওয়া হয়নি');
+
+    const noteBlock = document.getElementById('dNoteBlock');
+    if(o.customer_note){
+      noteBlock.style.display = 'block';
+      document.getElementById('dNote').textContent = o.customer_note;
+    }else{
+      noteBlock.style.display = 'none';
+    }
 
     const currentIdx = STATUS_STEPS.findIndex(s => s.key === o.status);
     const stepper = document.getElementById('stepper');
