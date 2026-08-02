@@ -4,6 +4,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>সেলাই ঘর দেবিদ্বার — আপনার মাপ, আপনার পছন্দ</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#7A2142">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Tiro+Bangla&family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -86,6 +89,28 @@
   }
   .search-box input::placeholder{ color:var(--ink-soft); }
   .search-box .icon{ font-size:16px; color:var(--ink-soft); }
+
+  /* Install app banner */
+  .install-banner{
+    display:none; align-items:center; gap:10px;
+    background:var(--blush); border-bottom:1px solid var(--line);
+    padding:10px 16px;
+  }
+  .install-banner.show{ display:flex; }
+  .install-banner .ic{ font-size:22px; flex:0 0 auto; }
+  .install-banner .txt{ flex:1; display:flex; flex-direction:column; }
+  .install-banner .txt b{ font-size:13.5px; color:var(--wine-deep); }
+  .install-banner .txt span{ font-size:11px; color:var(--ink-soft); }
+  .install-banner button{
+    font-family:inherit; border:none; cursor:pointer;
+  }
+  .install-banner button:not(.close){
+    background:var(--wine); color:var(--white); font-size:12.5px; font-weight:600;
+    padding:8px 14px; border-radius:999px; white-space:nowrap;
+  }
+  .install-banner button.close{
+    background:none; color:var(--ink-soft); font-size:16px; padding:4px;
+  }
 
   /* Slider */
   .slider{ position:relative; width:calc(100% - 32px); margin:16px auto 0; aspect-ratio:16/9; max-height:320px; overflow:hidden; background:var(--blush); border-radius:20px; }
@@ -261,6 +286,16 @@
   </div>
 </header>
 
+<div class="install-banner" id="installBanner">
+  <span class="ic">📲</span>
+  <div class="txt">
+    <b>অ্যাপ হিসেবে ইনস্টল করুন</b>
+    <span>বারবার ব্রাউজার খোলা লাগবে না</span>
+  </div>
+  <button onclick="installApp()">ইনস্টল করুন</button>
+  <button class="close" onclick="dismissInstallBanner()" aria-label="বন্ধ করুন">✕</button>
+</div>
+
 <div class="slider" id="slider"></div>
 
 <section class="hero">
@@ -297,6 +332,7 @@ const SUPABASE_URL = 'https://dyirxnzbnwmbaoaecgcq.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_6KCTdCz0orLYFaufqWuNgA_yrTiDU3N';
 const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 let ALL_CATEGORIES = []; // category_schemas টেবিল থেকে
+let openFabricId = null;
 
 async function loadSlider(){
   const el = document.getElementById('slider');
@@ -419,7 +455,7 @@ function renderGrid(){
   });
 }
 
-function openDetail(f){
+function openDetail(f, pushHistory){
   const sheet = document.getElementById('sheet');
   const previews = f.modelImages || [];
   const galleryImgs = [
@@ -451,17 +487,80 @@ function openDetail(f){
     </div>`;
   document.getElementById('overlay').classList.add('open');
   document.body.style.overflow = 'hidden';
+  openFabricId = f.id;
+  if(pushHistory !== false){
+    history.pushState({sgdDetail:f.id}, '', location.href);
+  }
 }
-function closeDetail(){
+function closeDetail(skipHistory){
   document.getElementById('overlay').classList.remove('open');
   document.body.style.overflow = '';
+  openFabricId = null;
+  if(!skipHistory && history.state && history.state.sgdDetail){
+    history.back();
+  }
 }
 document.getElementById('overlay').addEventListener('click', e => {
   if(e.target.id === 'overlay') closeDetail();
 });
+window.addEventListener('popstate', e => {
+  if(e.state && e.state.sgdDetail){
+    const f = FABRICS.find(x => x.id === e.state.sgdDetail);
+    if(f) openDetail(f, false);
+  }else{
+    closeDetail(true);
+  }
+});
 
 loadFabrics();
 loadSlider();
+
+/* ===== অ্যাপ ইনস্টল ব্যানার ===== */
+let deferredInstallPrompt = null;
+const INSTALL_DISMISS_KEY = 'sgd_install_dismissed_at';
+const RE_SHOW_AFTER_MS = 24 * 60 * 60 * 1000; // ২৪ ঘণ্টা পর আবার দেখাবে
+
+function isAlreadyInstalled(){
+  return window.matchMedia('(display-mode: standalone)').matches || localStorage.getItem('sgd_installed') === '1';
+}
+
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  deferredInstallPrompt = e;
+  maybeShowInstallBanner();
+});
+
+window.addEventListener('appinstalled', () => {
+  localStorage.setItem('sgd_installed', '1');
+  document.getElementById('installBanner').classList.remove('show');
+});
+
+function maybeShowInstallBanner(){
+  if(isAlreadyInstalled() || !deferredInstallPrompt) return;
+  const dismissedAt = Number(localStorage.getItem(INSTALL_DISMISS_KEY) || 0);
+  if(Date.now() - dismissedAt < RE_SHOW_AFTER_MS) return;
+  document.getElementById('installBanner').classList.add('show');
+}
+
+async function installApp(){
+  if(!deferredInstallPrompt) return;
+  deferredInstallPrompt.prompt();
+  const choice = await deferredInstallPrompt.userChoice;
+  if(choice.outcome === 'accepted'){
+    localStorage.setItem('sgd_installed', '1');
+  }
+  deferredInstallPrompt = null;
+  document.getElementById('installBanner').classList.remove('show');
+}
+
+function dismissInstallBanner(){
+  localStorage.setItem(INSTALL_DISMISS_KEY, String(Date.now()));
+  document.getElementById('installBanner').classList.remove('show');
+}
+
+if('serviceWorker' in navigator){
+  navigator.serviceWorker.register('sw.js').catch(()=>{});
+}
 document.getElementById('searchInput').addEventListener('input', e => {
   searchTerm = e.target.value;
   renderGrid();
