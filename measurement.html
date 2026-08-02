@@ -155,6 +155,11 @@
     </div>
 
     <div class="field">
+      <label>আপনার কোনো বিশেষ কথা বা অনুরোধ থাকলে লিখুন (ঐচ্ছিক)</label>
+      <textarea id="custNote" placeholder="যেমন: তাড়াতাড়ি লাগবে, নির্দিষ্ট কোনো জায়গায় ডিজাইন করে দিতে চান, বা অন্য কিছু বলতে চান — এখানে লিখুন"></textarea>
+    </div>
+
+    <div class="field">
       <label>পেমেন্ট পদ্ধতি</label>
       <div class="radio-opts">
         <div class="radio-opt selected" data-val="bkash" onclick="selectPay(this)">বিকাশ (অগ্রিম)</div>
@@ -166,6 +171,16 @@
       <label>বিকাশ ট্রানজেকশন আইডি</label>
       <input type="text" id="bkashTxn" placeholder="TXN আইডি লিখুন">
     </div>
+
+    <h2 style="margin-top:26px;">আপনার মাপ যাচাই করুন</h2>
+    <p class="sub">অর্ডারের আগে একবার ভালোভাবে দেখে নিন সব ঠিক আছে কিনা।</p>
+    <div class="review-box" id="measurementReviewBox"></div>
+    <div class="review-box" id="styleReviewBox" style="margin-top:10px;"></div>
+
+    <label style="display:flex; align-items:flex-start; gap:10px; margin:16px 0; font-size:14px; cursor:pointer;">
+      <input type="checkbox" id="confirmCheckbox" style="margin-top:3px; width:18px; height:18px; flex:0 0 18px;">
+      <span>আমি উপরের সব মাপ ও পছন্দ ভালোভাবে দেখেছি, সব তথ্য সঠিক</span>
+    </label>
 
     <div class="review-box" id="reviewBox"></div>
 
@@ -218,7 +233,7 @@ const price = Number(params.get('price') || 0);
 let schema = null;
 const stylePickerSelections = {};   // salwarStyle ইত্যাদি
 const designPickerSelections = {};  // neck, sleeve ইত্যাদি
-const customPhotoUrls = {};         // কাস্টমারের নিজের আপলোড করা ডিজাইনের ছবি
+const customPhotoUrls = {};         // কাস্টমারের নিজের আপলোড করা ডিজাইনের ছবি — প্রতিটার জন্য একটা অ্যারে
 
 let stepOrder = [];       // ['0','1',...,'style'?,'info']
 let currentIndex = 0;
@@ -297,7 +312,7 @@ function buildSteps(){
 
   if(schema.designPickers.length){
     stepOrder.push('style');
-    html += `<section class="step" data-step="style"><h2>ডিজাইন পছন্দ</h2><p class="sub">পছন্দের ডিজাইনে ট্যাপ করুন, নিজে লিখে দিন, অথবা নিজের পছন্দের ছবি আপলোড করুন।</p>`;
+    html += `<section class="step" data-step="style"><h2>ডিজাইন পছন্দ</h2><p class="sub">পছন্দের ডিজাইনে ট্যাপ করুন, নিজে লিখে দিন, অথবা আপনার পছন্দের একাধিক ছবি আপলোড করুন — আমাদের দেওয়া ডিজাইন পছন্দ না হলে আপনার নিজের পছন্দকেই প্রাধান্য দেওয়া হবে।</p>`;
     schema.designPickers.forEach(dp => {
       html += `
         <div class="field">
@@ -305,10 +320,10 @@ function buildSteps(){
           <div class="card-picker" id="designPicker_${dp.id}"><div class="empty-note">ডিজাইন লোড হচ্ছে…</div></div>
           <input type="text" class="custom-text" id="designCustom_${dp.id}" placeholder="আপনার পছন্দের ${dp.label} লিখুন (ঐচ্ছিক)">
           <div style="margin-top:10px;">
-            <label style="font-size:12.5px;color:var(--ink-soft);display:block;margin-bottom:6px;">অথবা আপনার পছন্দের ডিজাইনের ছবি আপলোড করুন</label>
-            <input type="file" accept="image/*" id="designUpload_${dp.id}" onchange="uploadDesignPhoto('${dp.id}', this)">
+            <label style="font-size:12.5px;color:var(--ink-soft);display:block;margin-bottom:6px;">অথবা আপনার পছন্দের একাধিক ছবি আপলোড করুন</label>
+            <input type="file" accept="image/*" multiple id="designUpload_${dp.id}" onchange="uploadDesignPhoto('${dp.id}', this)">
             <div id="designUploadStatus_${dp.id}" style="font-size:12.5px;color:var(--wine);margin-top:6px;"></div>
-            <div id="designUploadPreview_${dp.id}"></div>
+            <div id="designUploadPreview_${dp.id}" style="display:flex;gap:8px;flex-wrap:wrap;margin-top:6px;"></div>
           </div>
         </div>`;
     });
@@ -415,24 +430,48 @@ function renderStylePickers(){
 }
 
 async function uploadDesignPhoto(dpId, inputEl){
-  const file = inputEl.files[0];
-  if(!file) return;
+  const files = Array.from(inputEl.files || []);
+  if(!files.length) return;
   const statusEl = document.getElementById('designUploadStatus_'+dpId);
-  const previewEl = document.getElementById('designUploadPreview_'+dpId);
-  statusEl.textContent = 'ছবি আপলোড হচ্ছে…';
+  statusEl.textContent = `${files.length}টা ছবি আপলোড হচ্ছে…`;
 
-  const safeName = file.name.replace(/[^a-zA-Z0-9.]/g, '');
-  const fileName = 'custom_' + Date.now() + '_' + safeName;
+  if(!customPhotoUrls[dpId]) customPhotoUrls[dpId] = [];
 
-  const { error } = await sb.storage.from('selai-ghor-images').upload(fileName, file);
-  if(error){
-    statusEl.textContent = 'আপলোড ব্যর্থ হয়েছে, আবার চেষ্টা করুন।';
-    return;
+  let successCount = 0;
+  for(const file of files){
+    const safeName = file.name.replace(/[^a-zA-Z0-9.]/g, '');
+    const fileName = 'custom_' + Date.now() + '_' + Math.random().toString(36).slice(2,7) + '_' + safeName;
+    const { error } = await sb.storage.from('selai-ghor-images').upload(fileName, file);
+    if(!error){
+      const { data: urlData } = sb.storage.from('selai-ghor-images').getPublicUrl(fileName);
+      customPhotoUrls[dpId].push(urlData.publicUrl);
+      successCount++;
+    }
   }
-  const { data: urlData } = sb.storage.from('selai-ghor-images').getPublicUrl(fileName);
-  customPhotoUrls[dpId] = urlData.publicUrl;
-  statusEl.textContent = '✓ ছবি যুক্ত হয়েছে';
-  previewEl.innerHTML = `<img src="${urlData.publicUrl}" style="width:70px;height:70px;object-fit:cover;border-radius:8px;margin-top:6px;">`;
+
+  statusEl.textContent = successCount === files.length
+    ? `✓ ${successCount}টা ছবি যুক্ত হয়েছে`
+    : `${successCount}টা আপলোড হয়েছে, ${files.length - successCount}টা ব্যর্থ হয়েছে`;
+  inputEl.value = '';
+  renderDesignPhotoPreview(dpId);
+}
+
+function renderDesignPhotoPreview(dpId){
+  const previewEl = document.getElementById('designUploadPreview_'+dpId);
+  const urls = customPhotoUrls[dpId] || [];
+  previewEl.innerHTML = urls.map((url, i) => `
+    <div style="position:relative;">
+      <img src="${url}" style="width:70px;height:70px;object-fit:cover;border-radius:8px;">
+      <button type="button" onclick="removeDesignPhoto('${dpId}', ${i})"
+        style="position:absolute;top:-6px;right:-6px;width:20px;height:20px;border-radius:50%;border:none;background:var(--wine);color:var(--white);font-size:11px;cursor:pointer;">✕</button>
+    </div>`).join('');
+}
+
+function removeDesignPhoto(dpId, index){
+  customPhotoUrls[dpId].splice(index, 1);
+  renderDesignPhotoPreview(dpId);
+  const statusEl = document.getElementById('designUploadStatus_'+dpId);
+  statusEl.textContent = customPhotoUrls[dpId].length ? `✓ ${customPhotoUrls[dpId].length}টা ছবি যুক্ত আছে` : '';
 }
 
 async function loadDesignPickers(){
@@ -484,6 +523,32 @@ function renderReview(){
     amountEl.textContent = '৳' + price;
   }
 
+  // মাপগুলো একে একে দেখানো
+  const measurementBox = document.getElementById('measurementReviewBox');
+  let mHtml = '';
+  schema.steps.forEach(st => st.fields.forEach(f => {
+    const val = toLatinDigits(document.getElementById(f.id).value).trim();
+    mHtml += `<div><span>${f.label}</span><span>${val ? val + ' ইঞ্চি' : '—'}</span></div>`;
+  }));
+  measurementBox.innerHTML = mHtml || '<div><span>কোনো মাপ নেই</span><span></span></div>';
+
+  // স্টাইল/ফিট/ডিজাইন পছন্দ দেখানো
+  const styleBox = document.getElementById('styleReviewBox');
+  let sHtml = '';
+  schema.steps.forEach(st => {
+    if(st.stylePicker){
+      const val = stylePickerSelections[st.stylePicker.id] || '—';
+      sHtml += `<div><span>${st.stylePicker.label}</span><span>${val}</span></div>`;
+    }
+  });
+  schema.designPickers.forEach(dp => {
+    const custom = document.getElementById('designCustom_'+dp.id)?.value.trim();
+    const photos = customPhotoUrls[dp.id] || [];
+    const chosen = photos.length ? `(নিজের ${photos.length}টা ছবি আপলোড করা হয়েছে)` : (designPickerSelections[dp.id] || custom || '—');
+    sHtml += `<div><span>${dp.label}</span><span>${chosen}</span></div>`;
+  });
+  styleBox.innerHTML = sHtml || '<div><span>কোনো পছন্দ নেই</span><span></span></div>';
+
   const box = document.getElementById('reviewBox');
   box.innerHTML = `
     <div><span>পণ্য</span><span>${fabricName}</span></div>
@@ -509,6 +574,10 @@ async function submitOrder(){
   const name = document.getElementById('custName').value.trim();
   const phone = document.getElementById('custPhone').value.trim();
   const address = document.getElementById('custAddress').value.trim();
+  if(!document.getElementById('confirmCheckbox').checked){
+    alert('অনুগ্রহ করে উপরের মাপ ও পছন্দ যাচাই করে "সব তথ্য সঠিক" বক্সে টিক দিন।');
+    return;
+  }
   if(!name || !phone || !address){
     alert('অনুগ্রহ করে নাম, মোবাইল নম্বর ও ঠিকানা পূরণ করুন।');
     return;
@@ -535,8 +604,9 @@ async function submitOrder(){
   });
   schema.designPickers.forEach(dp => {
     const custom = document.getElementById('designCustom_'+dp.id).value.trim();
-    const photoUrl = customPhotoUrls[dp.id];
-    styleChoices[dp.label] = photoUrl || designPickerSelections[dp.id] || custom || null;
+    const photos = customPhotoUrls[dp.id] || [];
+    // একাধিক ছবি আপলোড করা থাকলে সেটাকেই প্রাধান্য দেওয়া হচ্ছে (কাস্টমারের নিজের পছন্দ সবার আগে)
+    styleChoices[dp.label] = photos.length ? (photos.length === 1 ? photos[0] : photos) : (designPickerSelections[dp.id] || custom || null);
   });
 
   const orderCode = 'SGD-' + Date.now().toString().slice(-8);
@@ -550,6 +620,7 @@ async function submitOrder(){
     customer_name: name,
     customer_phone: phone,
     customer_address: address,
+    customer_note: document.getElementById('custNote').value.trim() || null,
     measurements: measurements,
     style_choices: styleChoices,
     total_price: price,
