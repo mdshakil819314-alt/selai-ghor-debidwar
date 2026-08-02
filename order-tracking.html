@@ -249,6 +249,10 @@
     }, 20000);
   }
 
+  function isImageUrl(val){
+    return typeof val === 'string' && /^https?:\/\/.*\.(jpg|jpeg|png|webp)/i.test(val);
+  }
+
   function formatObj(obj, emptyMsg){
     if(!obj || Object.keys(obj).length === 0) return emptyMsg;
     let lines = [];
@@ -260,6 +264,23 @@
     return lines.length ? lines.join('\n') : emptyMsg;
   }
 
+  function renderStyleChoices(obj, emptyMsg){
+    if(!obj || Object.keys(obj).length === 0) return `<span>${emptyMsg}</span>`;
+    let html = '';
+    let hasAny = false;
+    for(const key in obj){
+      const val = obj[key];
+      if(val === null || val === '' || val === undefined) continue;
+      hasAny = true;
+      if(isImageUrl(val)){
+        html += `<div style="margin-bottom:8px;">${key}: <br><img src="${val}" style="width:90px;height:90px;object-fit:cover;border-radius:8px;margin-top:4px;"></div>`;
+      }else{
+        html += `<div>${key}: ${val}</div>`;
+      }
+    }
+    return hasAny ? html : `<span>${emptyMsg}</span>`;
+  }
+
   function renderDetail(o){
     document.getElementById('dFabric').textContent = o.fabric_name;
     document.getElementById('dCode').textContent = o.order_code;
@@ -267,7 +288,7 @@
     document.getElementById('dPrice').textContent = '৳' + o.total_price;
     document.getElementById('dPay').textContent = o.payment_method === 'bkash' ? 'বিকাশ (অগ্রিম)' : 'ক্যাশ অন ডেলিভারি';
     document.getElementById('dMeasurements').textContent = formatObj(o.measurements, 'কোনো মাপ পাওয়া যায়নি');
-    document.getElementById('dStyle').textContent = formatObj(o.style_choices, 'কোনো স্টাইল পছন্দ দেওয়া হয়নি');
+    document.getElementById('dStyle').innerHTML = renderStyleChoices(o.style_choices, 'কোনো স্টাইল পছন্দ দেওয়া হয়নি');
 
     const currentIdx = STATUS_STEPS.findIndex(s => s.key === o.status);
     const stepper = document.getElementById('stepper');
