@@ -210,6 +210,7 @@ const price = Number(params.get('price') || 0);
 let schema = null;
 const stylePickerSelections = {};   // salwarStyle ইত্যাদি
 const designPickerSelections = {};  // neck, sleeve ইত্যাদি
+const customPhotoUrls = {};         // কাস্টমারের নিজের আপলোড করা ডিজাইনের ছবি
 
 let stepOrder = [];       // ['0','1',...,'style'?,'info']
 let currentIndex = 0;
@@ -288,13 +289,19 @@ function buildSteps(){
 
   if(schema.designPickers.length){
     stepOrder.push('style');
-    html += `<section class="step" data-step="style"><h2>ডিজাইন পছন্দ</h2><p class="sub">পছন্দের ডিজাইনে ট্যাপ করুন, অথবা নিজে লিখে দিন।</p>`;
+    html += `<section class="step" data-step="style"><h2>ডিজাইন পছন্দ</h2><p class="sub">পছন্দের ডিজাইনে ট্যাপ করুন, নিজে লিখে দিন, অথবা নিজের পছন্দের ছবি আপলোড করুন।</p>`;
     schema.designPickers.forEach(dp => {
       html += `
         <div class="field">
           <label>${dp.label}</label>
           <div class="card-picker" id="designPicker_${dp.id}"><div class="empty-note">ডিজাইন লোড হচ্ছে…</div></div>
           <input type="text" class="custom-text" id="designCustom_${dp.id}" placeholder="আপনার পছন্দের ${dp.label} লিখুন (ঐচ্ছিক)">
+          <div style="margin-top:10px;">
+            <label style="font-size:12.5px;color:var(--ink-soft);display:block;margin-bottom:6px;">অথবা আপনার পছন্দের ডিজাইনের ছবি আপলোড করুন</label>
+            <input type="file" accept="image/*" id="designUpload_${dp.id}" onchange="uploadDesignPhoto('${dp.id}', this)">
+            <div id="designUploadStatus_${dp.id}" style="font-size:12.5px;color:var(--wine);margin-top:6px;"></div>
+            <div id="designUploadPreview_${dp.id}"></div>
+          </div>
         </div>`;
     });
     html += `<div class="nav-row"><button class="btn btn-ghost" onclick="goToPrev('style')">আগের ধাপ</button><button class="btn btn-primary" onclick="goToNext('style')">পরবর্তী ধাপ</button></div></section>`;
@@ -324,6 +331,20 @@ function goToStepKey(key){
   if(key === 'info') renderReview();
 }
 function goToNext(fromKey){
+  // যদি এটা মাপের একটা ধাপ হয় (numeric key), সব ঘর পূরণ হয়েছে কিনা যাচাই করা হচ্ছে
+  const stepDef = schema.steps[Number(fromKey)];
+  if(stepDef){
+    for(const f of stepDef.fields){
+      const input = document.getElementById(f.id);
+      const val = toLatinDigits(input.value).trim();
+      if(val === '' || isNaN(parseFloat(val))){
+        alert('"' + f.label + '" ঘরটি খালি আছে। অনুগ্রহ করে সব মাপ পূরণ করুন।');
+        input.focus();
+        input.scrollIntoView({behavior:'smooth', block:'center'});
+        return;
+      }
+    }
+  }
   const idx = stepOrder.indexOf(fromKey);
   goToStepKey(stepOrder[idx+1]);
 }
@@ -367,6 +388,27 @@ function renderStylePickers(){
     }
     render();
   });
+}
+
+async function uploadDesignPhoto(dpId, inputEl){
+  const file = inputEl.files[0];
+  if(!file) return;
+  const statusEl = document.getElementById('designUploadStatus_'+dpId);
+  const previewEl = document.getElementById('designUploadPreview_'+dpId);
+  statusEl.textContent = 'ছবি আপলোড হচ্ছে…';
+
+  const safeName = file.name.replace(/[^a-zA-Z0-9.]/g, '');
+  const fileName = 'custom_' + Date.now() + '_' + safeName;
+
+  const { error } = await sb.storage.from('selai-ghor-images').upload(fileName, file);
+  if(error){
+    statusEl.textContent = 'আপলোড ব্যর্থ হয়েছে, আবার চেষ্টা করুন।';
+    return;
+  }
+  const { data: urlData } = sb.storage.from('selai-ghor-images').getPublicUrl(fileName);
+  customPhotoUrls[dpId] = urlData.publicUrl;
+  statusEl.textContent = '✓ ছবি যুক্ত হয়েছে';
+  previewEl.innerHTML = `<img src="${urlData.publicUrl}" style="width:70px;height:70px;object-fit:cover;border-radius:8px;margin-top:6px;">`;
 }
 
 async function loadDesignPickers(){
@@ -417,6 +459,18 @@ function renderReview(){
 }
 
 async function submitOrder(){
+  // চূড়ান্তভাবে আবার যাচাই — কোনো মাপ যদি পরে গিয়ে খালি করে ফেলা হয়ে থাকে
+  for(const st of schema.steps){
+    for(const f of st.fields){
+      const input = document.getElementById(f.id);
+      const val = toLatinDigits(input.value).trim();
+      if(val === '' || isNaN(parseFloat(val))){
+        alert('"' + f.label + '" মাপটি খালি আছে। অনুগ্রহ করে সব মাপ পূরণ করে আবার চেষ্টা করুন।');
+        return;
+      }
+    }
+  }
+
   const name = document.getElementById('custName').value.trim();
   const phone = document.getElementById('custPhone').value.trim();
   const address = document.getElementById('custAddress').value.trim();
@@ -430,18 +484,24 @@ async function submitOrder(){
     return;
   }
 
-  // সব মাপ জড়ো করা (ক্যাটাগরি অনুযায়ী ফিল্ড ভিন্ন হতে পারে)
+  // সব মাপ জড়ো করা (ক্যাটাগরি অনুযায়ী ফিল্ড ভিন্ন হতে পারে) — বাংলা নাম key হিসেবে ব্যবহার করা হচ্ছে
   const measurements = {};
   schema.steps.forEach(st => st.fields.forEach(f => {
     const val = parseFloat(toLatinDigits(document.getElementById(f.id).value));
-    measurements[f.id] = isNaN(val) ? null : val;
+    measurements[f.label] = isNaN(val) ? null : val;
   }));
 
-  // স্টাইল পছন্দ জড়ো করা
-  const styleChoices = { ...stylePickerSelections };
+  // স্টাইল পছন্দ জড়ো করা — এখানেও বাংলা নাম key হিসেবে ব্যবহার হচ্ছে
+  const styleChoices = {};
+  schema.steps.forEach(st => {
+    if(st.stylePicker){
+      styleChoices[st.stylePicker.label] = stylePickerSelections[st.stylePicker.id];
+    }
+  });
   schema.designPickers.forEach(dp => {
     const custom = document.getElementById('designCustom_'+dp.id).value.trim();
-    styleChoices[dp.id] = designPickerSelections[dp.id] || custom || null;
+    const photoUrl = customPhotoUrls[dp.id];
+    styleChoices[dp.label] = photoUrl || designPickerSelections[dp.id] || custom || null;
   });
 
   const orderCode = 'SGD-' + Date.now().toString().slice(-8);
