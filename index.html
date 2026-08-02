@@ -515,10 +515,8 @@ window.addEventListener('popstate', e => {
 loadFabrics();
 loadSlider();
 
-/* ===== অ্যাপ ইনস্টল ব্যানার ===== */
+/* ===== অ্যাপ ইনস্টল ব্যানার — ইনস্টল না করা পর্যন্ত প্রতিবার দেখাবে ===== */
 let deferredInstallPrompt = null;
-const INSTALL_DISMISS_KEY = 'sgd_install_dismissed_at';
-const RE_SHOW_AFTER_MS = 24 * 60 * 60 * 1000; // ২৪ ঘণ্টা পর আবার দেখাবে
 
 function isAlreadyInstalled(){
   return window.matchMedia('(display-mode: standalone)').matches || localStorage.getItem('sgd_installed') === '1';
@@ -537,8 +535,6 @@ window.addEventListener('appinstalled', () => {
 
 function maybeShowInstallBanner(){
   if(isAlreadyInstalled() || !deferredInstallPrompt) return;
-  const dismissedAt = Number(localStorage.getItem(INSTALL_DISMISS_KEY) || 0);
-  if(Date.now() - dismissedAt < RE_SHOW_AFTER_MS) return;
   document.getElementById('installBanner').classList.add('show');
 }
 
@@ -554,7 +550,6 @@ async function installApp(){
 }
 
 function dismissInstallBanner(){
-  localStorage.setItem(INSTALL_DISMISS_KEY, String(Date.now()));
   document.getElementById('installBanner').classList.remove('show');
 }
 
