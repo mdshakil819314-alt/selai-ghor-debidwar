@@ -71,10 +71,25 @@
   .card-picker{ display:grid; grid-template-columns:repeat(auto-fill,minmax(96px,1fr)); gap:10px; margin-bottom:10px; }
   .pick{
     border:2px solid var(--line); border-radius:12px; padding:8px; text-align:center;
-    cursor:pointer; font-size:12.5px; background:var(--white);
+    cursor:pointer; font-size:12.5px; background:var(--white); position:relative;
   }
   .pick img{ width:100%; aspect-ratio:1; object-fit:cover; border-radius:8px; margin-bottom:6px; background:var(--blush); }
   .pick.selected{ border-color:var(--wine); background:var(--blush); font-weight:600; color:var(--wine-deep); }
+  .pick-zoom{
+    position:absolute; top:12px; right:12px; width:26px; height:26px; border-radius:50%;
+    background:rgba(0,0,0,.5); color:var(--white); border:none; font-size:13px;
+    display:flex; align-items:center; justify-content:center; cursor:pointer; z-index:2;
+  }
+  .image-view-overlay{
+    position:fixed; inset:0; background:rgba(0,0,0,.9); z-index:200;
+    display:none; align-items:center; justify-content:center; padding:20px;
+  }
+  .image-view-overlay.open{ display:flex; }
+  .image-view-overlay img{ max-width:100%; max-height:85vh; border-radius:10px; }
+  .image-view-close{
+    position:absolute; top:16px; right:16px; width:38px; height:38px; border-radius:50%;
+    border:none; background:var(--white); font-size:18px; cursor:pointer;
+  }
   .custom-text{
     width:100%; padding:11px; border-radius:10px; border:1.5px solid var(--line);
     font-family:inherit; font-size:14px; margin-top:6px;
@@ -215,6 +230,11 @@
   </div>
 </div>
 
+<div class="image-view-overlay" id="imageViewOverlay" onclick="closeImageView(event)">
+  <button class="image-view-close" onclick="closeImageView(event)">✕</button>
+  <img id="imageViewImg" src="" alt="ডিজাইনের ছবি">
+</div>
+
 <script>
 /* ================= ক্যাটাগরির মাপের কনফিগারেশন — এখন Supabase থেকে আসে =================
    নতুন ক্যাটাগরি যোগ করতে কোনো কোড লাগবে না — অ্যাডমিন অ্যাপ/SQL দিয়ে
@@ -233,7 +253,7 @@ const price = Number(params.get('price') || 0);
 let schema = null;
 const stylePickerSelections = {};   // salwarStyle ইত্যাদি
 const designPickerSelections = {};  // neck, sleeve ইত্যাদি
-const customPhotoUrls = {};         // কাস্টমারের নিজের আপলোড করা ডিজাইনের ছবি — প্রতিটার জন্য একটা অ্যারে
+const customPhotoUrls = {};         // কাস্টমারের নিজের আপলোড করা ডিজাইনের ছবি — প্রতিটা ডিজাইনের জন্য একটাই
 
 let stepOrder = [];       // ['0','1',...,'style'?,'info']
 let currentIndex = 0;
@@ -270,6 +290,16 @@ document.getElementById('videoOverlay').addEventListener('click', e => {
   if(e.target.id === 'videoOverlay') closeVideo();
 });
 
+function openImageView(url){
+  document.getElementById('imageViewImg').src = url;
+  document.getElementById('imageViewOverlay').classList.add('open');
+}
+function closeImageView(e){
+  if(e) e.stopPropagation();
+  document.getElementById('imageViewOverlay').classList.remove('open');
+  document.getElementById('imageViewImg').src = '';
+}
+
 function toLatinDigits(str){
   const bn = '০১২৩৪৫৬৭৮৯';
   return String(str).replace(/[০-৯]/g, d => bn.indexOf(d));
@@ -283,15 +313,26 @@ function buildSteps(){
     stepOrder.push(String(si));
     html += `<section class="step" data-step="${si}"><h2>${st.title}</h2>`;
     if(st.sub) html += `<p class="sub">${st.sub}</p>`;
+    if(st.videoUrl){
+      html += `<button type="button" onclick="playVideo('${st.videoUrl}')"
+        style="display:flex;align-items:center;gap:8px;width:100%;text-align:left;background:var(--blush);border:1.5px solid var(--gold);border-radius:12px;padding:12px 14px;margin-bottom:18px;font-family:inherit;font-size:13.5px;color:var(--wine-deep);cursor:pointer;">
+        <span style="width:30px;height:30px;border-radius:50%;background:var(--gold);color:var(--white);display:flex;align-items:center;justify-content:center;flex:0 0 30px;">▶</span>
+        <span>${st.videoLabel || 'ভিডিও দেখুন'}</span>
+      </button>`;
+    }
 
     if(st.stylePicker){
-      html += `<div class="field"><label>${st.stylePicker.label}</label><div class="card-picker" id="stylePicker_${st.stylePicker.id}"></div></div>`;
+      html += `
+        <div class="field">
+          <label>${st.stylePicker.label}</label>
+          <div class="card-picker" id="stylePicker_${st.stylePicker.id}"></div>
+        </div>`;
     }
 
     st.fields.forEach(f => {
       html += `
         <div class="field">
-          <label>${f.label}
+          <label>${f.label}${f.optional ? ' <span style="font-weight:400;color:var(--ink-soft);font-size:12px;">(ঐচ্ছিক)</span>' : ''}
             <button class="helpbtn" onclick="toggleHelp(this)">?</button>
             ${f.videoUrl ? `<button type="button" class="helpbtn" onclick="playVideo('${f.videoUrl}')" style="display:inline-flex;align-items:center;justify-content:center;">▶</button>` : ''}
           </label>
@@ -304,6 +345,14 @@ function buildSteps(){
         </div>`;
     });
 
+    // প্রতিটা ধাপেই একটা ঐচ্ছিক মন্তব্যের ঘর — কাস্টমার চাইলে নিজের ভাষায় কিছু বলতে পারবে
+    const noteLabel = st.stylePicker ? st.stylePicker.label : st.title;
+    html += `
+      <div class="field">
+        <label style="font-size:12.5px;color:var(--ink-soft);">চাইলে এই বিষয়ে নিজের ভাষায় কিছু বলুন (ঐচ্ছিক)</label>
+        <textarea class="custom-text" rows="2" id="stepNote_${si}" placeholder="যেমন: বিশেষ কোনো চাওয়া থাকলে এখানে লিখুন"></textarea>
+      </div>`;
+
     html += `<div class="nav-row">`;
     html += si > 0 ? `<button class="btn btn-ghost" onclick="goToPrev('${si}')">আগের ধাপ</button>` : '';
     html += `<button class="btn btn-primary" onclick="goToNext('${si}')">পরবর্তী ধাপ</button>`;
@@ -312,7 +361,7 @@ function buildSteps(){
 
   if(schema.designPickers.length){
     stepOrder.push('style');
-    html += `<section class="step" data-step="style"><h2>ডিজাইন পছন্দ</h2><p class="sub">পছন্দের ডিজাইনে ট্যাপ করুন, নিজে লিখে দিন, অথবা আপনার পছন্দের একাধিক ছবি আপলোড করুন — আমাদের দেওয়া ডিজাইন পছন্দ না হলে আপনার নিজের পছন্দকেই প্রাধান্য দেওয়া হবে।</p>`;
+    html += `<section class="step" data-step="style"><h2>ডিজাইন পছন্দ</h2><p class="sub">পছন্দের ডিজাইনে ট্যাপ করুন, নিজে লিখে দিন, অথবা আপনার পছন্দের একটা ছবি আপলোড করুন — আমাদের দেওয়া ডিজাইন পছন্দ না হলে আপনার নিজের পছন্দকেই প্রাধান্য দেওয়া হবে।</p>`;
     schema.designPickers.forEach(dp => {
       html += `
         <div class="field">
@@ -320,8 +369,8 @@ function buildSteps(){
           <div class="card-picker" id="designPicker_${dp.id}"><div class="empty-note">ডিজাইন লোড হচ্ছে…</div></div>
           <input type="text" class="custom-text" id="designCustom_${dp.id}" placeholder="আপনার পছন্দের ${dp.label} লিখুন (ঐচ্ছিক)">
           <div style="margin-top:10px;">
-            <label style="font-size:12.5px;color:var(--ink-soft);display:block;margin-bottom:6px;">অথবা আপনার পছন্দের একাধিক ছবি আপলোড করুন</label>
-            <input type="file" accept="image/*" multiple id="designUpload_${dp.id}" onchange="uploadDesignPhoto('${dp.id}', this)">
+            <label style="font-size:12.5px;color:var(--ink-soft);display:block;margin-bottom:6px;">অথবা আপনার পছন্দের একটা ছবি আপলোড করুন</label>
+            <input type="file" accept="image/*" id="designUpload_${dp.id}" onchange="uploadDesignPhoto('${dp.id}', this)">
             <div id="designUploadStatus_${dp.id}" style="font-size:12.5px;color:var(--wine);margin-top:6px;"></div>
             <div id="designUploadPreview_${dp.id}" style="display:flex;gap:8px;flex-wrap:wrap;margin-top:6px;"></div>
           </div>
@@ -361,6 +410,7 @@ function goToNext(fromKey){
   const stepDef = schema.steps[Number(fromKey)];
   if(stepDef){
     for(const f of stepDef.fields){
+      if(f.optional) continue;
       const input = document.getElementById(f.id);
       const val = toLatinDigits(input.value).trim();
       if(val === '' || isNaN(parseFloat(val))){
@@ -430,48 +480,42 @@ function renderStylePickers(){
 }
 
 async function uploadDesignPhoto(dpId, inputEl){
-  const files = Array.from(inputEl.files || []);
-  if(!files.length) return;
+  const file = inputEl.files && inputEl.files[0];
+  if(!file) return;
   const statusEl = document.getElementById('designUploadStatus_'+dpId);
-  statusEl.textContent = `${files.length}টা ছবি আপলোড হচ্ছে…`;
+  statusEl.textContent = 'ছবি আপলোড হচ্ছে…';
 
-  if(!customPhotoUrls[dpId]) customPhotoUrls[dpId] = [];
+  const safeName = file.name.replace(/[^a-zA-Z0-9.]/g, '');
+  const fileName = 'custom_' + Date.now() + '_' + safeName;
+  const { error } = await sb.storage.from('selai-ghor-images').upload(fileName, file);
 
-  let successCount = 0;
-  for(const file of files){
-    const safeName = file.name.replace(/[^a-zA-Z0-9.]/g, '');
-    const fileName = 'custom_' + Date.now() + '_' + Math.random().toString(36).slice(2,7) + '_' + safeName;
-    const { error } = await sb.storage.from('selai-ghor-images').upload(fileName, file);
-    if(!error){
-      const { data: urlData } = sb.storage.from('selai-ghor-images').getPublicUrl(fileName);
-      customPhotoUrls[dpId].push(urlData.publicUrl);
-      successCount++;
-    }
+  if(error){
+    statusEl.textContent = 'আপলোড ব্যর্থ হয়েছে, আবার চেষ্টা করুন।';
+    return;
   }
-
-  statusEl.textContent = successCount === files.length
-    ? `✓ ${successCount}টা ছবি যুক্ত হয়েছে`
-    : `${successCount}টা আপলোড হয়েছে, ${files.length - successCount}টা ব্যর্থ হয়েছে`;
+  const { data: urlData } = sb.storage.from('selai-ghor-images').getPublicUrl(fileName);
+  customPhotoUrls[dpId] = urlData.publicUrl; // নতুন ছবি আগের ছবিটা বদলে দেবে — একটাই যথেষ্ট
+  statusEl.textContent = '✓ ছবি যুক্ত হয়েছে';
   inputEl.value = '';
   renderDesignPhotoPreview(dpId);
 }
 
 function renderDesignPhotoPreview(dpId){
   const previewEl = document.getElementById('designUploadPreview_'+dpId);
-  const urls = customPhotoUrls[dpId] || [];
-  previewEl.innerHTML = urls.map((url, i) => `
-    <div style="position:relative;">
-      <img src="${url}" style="width:70px;height:70px;object-fit:cover;border-radius:8px;">
-      <button type="button" onclick="removeDesignPhoto('${dpId}', ${i})"
+  const url = customPhotoUrls[dpId];
+  if(!url){ previewEl.innerHTML = ''; return; }
+  previewEl.innerHTML = `
+    <div style="position:relative;display:inline-block;">
+      <img src="${url}" style="width:70px;height:70px;object-fit:cover;border-radius:8px;cursor:pointer;" onclick="openImageView('${url}')">
+      <button type="button" onclick="removeDesignPhoto('${dpId}')"
         style="position:absolute;top:-6px;right:-6px;width:20px;height:20px;border-radius:50%;border:none;background:var(--wine);color:var(--white);font-size:11px;cursor:pointer;">✕</button>
-    </div>`).join('');
+    </div>`;
 }
 
-function removeDesignPhoto(dpId, index){
-  customPhotoUrls[dpId].splice(index, 1);
+function removeDesignPhoto(dpId){
+  delete customPhotoUrls[dpId];
   renderDesignPhotoPreview(dpId);
-  const statusEl = document.getElementById('designUploadStatus_'+dpId);
-  statusEl.textContent = customPhotoUrls[dpId].length ? `✓ ${customPhotoUrls[dpId].length}টা ছবি যুক্ত আছে` : '';
+  document.getElementById('designUploadStatus_'+dpId).textContent = '';
 }
 
 async function loadDesignPickers(){
@@ -487,7 +531,13 @@ async function loadDesignPickers(){
       data.forEach(d => {
         const card = document.createElement('div');
         card.className = 'pick';
-        card.innerHTML = `<img src="${d.image_url}" alt="${d.name}"><span>${d.name}</span>`;
+        card.innerHTML = `
+          <button type="button" class="pick-zoom" aria-label="বড় করে দেখুন">🔍</button>
+          <img src="${d.image_url}" alt="${d.name}"><span>${d.name}</span>`;
+        card.querySelector('.pick-zoom').onclick = (e) => {
+          e.stopPropagation();
+          openImageView(d.image_url);
+        };
         card.onclick = () => {
           el.querySelectorAll('.pick').forEach(p => p.classList.remove('selected'));
           card.classList.add('selected');
@@ -535,16 +585,21 @@ function renderReview(){
   // স্টাইল/ফিট/ডিজাইন পছন্দ দেখানো
   const styleBox = document.getElementById('styleReviewBox');
   let sHtml = '';
-  schema.steps.forEach(st => {
+  schema.steps.forEach((st, si) => {
     if(st.stylePicker){
       const val = stylePickerSelections[st.stylePicker.id] || '—';
-      sHtml += `<div><span>${st.stylePicker.label}</span><span>${val}</span></div>`;
+      sHtml += `<div><span>${st.stylePicker.label} (বাটনে বাছাই করা)</span><span>${val}</span></div>`;
+    }
+    const note = document.getElementById('stepNote_'+si)?.value.trim();
+    if(note){
+      const noteLabel = st.stylePicker ? st.stylePicker.label : st.title;
+      sHtml += `<div><span>${noteLabel} — কাস্টমারের নিজের কথায়</span><span>${note}</span></div>`;
     }
   });
   schema.designPickers.forEach(dp => {
     const custom = document.getElementById('designCustom_'+dp.id)?.value.trim();
-    const photos = customPhotoUrls[dp.id] || [];
-    const chosen = photos.length ? `(নিজের ${photos.length}টা ছবি আপলোড করা হয়েছে)` : (designPickerSelections[dp.id] || custom || '—');
+    const photo = customPhotoUrls[dp.id];
+    const chosen = photo ? '(নিজের ছবি আপলোড করা হয়েছে)' : (designPickerSelections[dp.id] || custom || '—');
     sHtml += `<div><span>${dp.label}</span><span>${chosen}</span></div>`;
   });
   styleBox.innerHTML = sHtml || '<div><span>কোনো পছন্দ নেই</span><span></span></div>';
@@ -562,6 +617,7 @@ async function submitOrder(){
   // চূড়ান্তভাবে আবার যাচাই — কোনো মাপ যদি পরে গিয়ে খালি করে ফেলা হয়ে থাকে
   for(const st of schema.steps){
     for(const f of st.fields){
+      if(f.optional) continue;
       const input = document.getElementById(f.id);
       const val = toLatinDigits(input.value).trim();
       if(val === '' || isNaN(parseFloat(val))){
@@ -597,16 +653,21 @@ async function submitOrder(){
 
   // স্টাইল পছন্দ জড়ো করা — এখানেও বাংলা নাম key হিসেবে ব্যবহার হচ্ছে
   const styleChoices = {};
-  schema.steps.forEach(st => {
+  schema.steps.forEach((st, si) => {
     if(st.stylePicker){
-      styleChoices[st.stylePicker.label] = stylePickerSelections[st.stylePicker.id];
+      styleChoices[st.stylePicker.label + ' (বাটনে বাছাই করা)'] = stylePickerSelections[st.stylePicker.id];
+    }
+    const note = document.getElementById('stepNote_'+si)?.value.trim();
+    if(note){
+      const noteLabel = st.stylePicker ? st.stylePicker.label : st.title;
+      styleChoices[noteLabel + ' — কাস্টমারের নিজের কথায়'] = note;
     }
   });
   schema.designPickers.forEach(dp => {
     const custom = document.getElementById('designCustom_'+dp.id).value.trim();
-    const photos = customPhotoUrls[dp.id] || [];
-    // একাধিক ছবি আপলোড করা থাকলে সেটাকেই প্রাধান্য দেওয়া হচ্ছে (কাস্টমারের নিজের পছন্দ সবার আগে)
-    styleChoices[dp.label] = photos.length ? (photos.length === 1 ? photos[0] : photos) : (designPickerSelections[dp.id] || custom || null);
+    const photo = customPhotoUrls[dp.id];
+    // ছবি আপলোড করা থাকলে সেটাকেই প্রাধান্য দেওয়া হচ্ছে (কাস্টমারের নিজের পছন্দ সবার আগে)
+    styleChoices[dp.label] = photo || designPickerSelections[dp.id] || custom || null;
   });
 
   const orderCode = 'SGD-' + Date.now().toString().slice(-8);
